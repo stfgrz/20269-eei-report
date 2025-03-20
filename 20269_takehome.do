@@ -41,7 +41,7 @@ if ("`user'" == "enricoancona") {
     global filepath "CAMBIA"
 }
 
-if ("`user'" == "ozguncavaser") {
+if ("`user'" == "simon") {
     global filepath "CHANGE"
 }
 
