@@ -1,0 +1,43 @@
+*============================================================================
+*					Economics of European Integration
+*							Final Report
+
+/* Group composition: Enrico Ancona, Simone Donoghue, Stefano Graziosi */
+*============================================================================
+
+*=============================================================================
+/* 								Setup 										*/
+*=============================================================================
+
+set more off
+
+/* For commands */
+/*ssc install outreg2, replace*/
+/*ssc install estout, replace*/
+/*ssc install randomizr, replace*/
+/*ssc install ritest, replace**/
+
+/* For graphs & stuff */
+ ssc install grstyle, replace
+ssc install coefplot, replace
+graph set window fontface "Lato"
+grstyle init
+grstyle set plain, horizontal
+
+local user = c(username)
+
+if ("`user'" == "stefanograziosi") {
+	cd "'/Users/stefanograziosi/Desktop/Bocconi/ESS Y1S2/Economics of EU Integration/20269-eei-report'"
+    global filepath "'/Users/stefanograziosi/Desktop/Bocconi/ESS Y1S2/Economics of EU Integration/20269-eei-report'"
+}
+
+if ("`user'" == "enricoancona") {
+    global filepath "CAMBIA"
+}
+
+if ("`user'" == "ozguncavaser") {
+    global filepath "CHANGE"
+}
+
+*=============================================================================
+/* 								Tasks	 									*/
