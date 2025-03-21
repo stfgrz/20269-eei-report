@@ -56,9 +56,15 @@ use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b7808de62ba85f863
 /* 								Problem 1 									*/
 *=============================================================================
 
-/* (a) Focus only on French firms. Starting from balance-sheet data, provide some descriptive statistics (e.g. n. of firms, average capital, revenues, number of employees, value added) in 2007 comparing firms in sector 13 (textiles) and firms in sector 29 (motor vehicles, trailers and semi-trailers) for the region Nord - Pas de Calais. Please use the NUTS level 2 - 2013 definition. Comment briefly. */
+/* (a) Focus only on French firms. Starting from balance-sheet data, provide some descriptive statistics (e.g. n. of firms, average capital, revenues, number of employees, value added) in 2007 comparing firms in sector 13 (textiles) and firms in sector 29 (motor vehicles, trailers and semi-trailers) for the region Nord - Pas de Calais -> FR30. Please use the NUTS level 2 - 2013 definition. Comment briefly. */
 
+preserve
+	keep if country == "France" & nuts2 == "FR30" & year == 2007 & (sector == 13 | sector == 29)
+	
+	tabulate sector
 
+	tabstat K sales L real_VA, by(sector) statistics(n mean sd min max) format(%9.2f)
+restore
 
 	/* A: answer and comment */
 	
