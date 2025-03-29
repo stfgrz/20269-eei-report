@@ -16,8 +16,8 @@ set more off
 /*
 ssc install outreg2, replace
 ssc install estout, replace
-ssc install randomizr, replace
-ssc install ritest, replace
+search levpet
+search prodest
 */
 
 /* For graphs & stuff */
@@ -51,8 +51,15 @@ if ("`user'" == "simon") {
 
 use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b7808de62ba85f86396e28f7cbf865ac9771cafe/data/EEI_TH_2025.dta", clear
 
+tab country, generate(dcountry_)
+tab year, generate(dyear_)
+
+foreach var in real_sales real_M real_K L real_VA {
+    gen ln_`var' = ln(`var')
+}
+
 *=============================================================================
-/* 								Problem 1 									*/
+**# 							Problem 1 									*/
 *=============================================================================
 
 /* (a) Focus only on French firms. Starting from balance-sheet data, provide some descriptive statistics (e.g. n. of firms, average capital, revenues, number of employees, value added) in 2007 comparing firms in sector 13 (textiles) and firms in sector 29 (motor vehicles, trailers and semi-trailers) for the region Nord - Pas de Calais -> FR30. Please use the NUTS level 2 - 2013 definition. Comment briefly. */
@@ -62,7 +69,14 @@ preserve
 	
 	tabulate sector
 
-	tabstat K sales L real_VA, by(sector) statistics(n mean sd min max) format(%9.2f)
+	tabstat real_sales real_K real_M real_VA, by(sector) statistics(n mean sd min max) format(%9.2f)
+	
+	dtable real_sales real_K real_M real_VA L W i.sizeclass, by(sector) ///
+		nformat(%7.2f mean sd) ///
+		title(Table 1. Descriptive statistics for textiles and automotive in Pas de Calais, France, in 2007) ///
+		export(output/table1.html, replace) 
+		
+	graph box real_sales real_K real_M real_VA L W if sizeclass != 5, over(sizeclass) by(sector, cols(1))
 restore
 
 	/* A: answer and comment */
@@ -74,14 +88,84 @@ preserve
 	
 	tabulate sector
 
-	tabstat K sales L real_VA, by(sector) statistics(n mean sd min max) format(%9.2f)
+	tabstat real_sales real_K real_M real_VA, by(sector) statistics(n mean sd min max) format(%9.2f)
+	
+	dtable real_sales real_K real_M real_VA L W i.sizeclass, by(sector) ///
+		nformat(%7.2f mean sd) ///
+		title(Table 2. Descriptive statistics for textiles and automotive in Pas de Calais, France, in 2017) ///
+		export(output/table2.html, replace)
 restore
 
+	/* A: answer and comment */
+
+
 *=============================================================================
-/* 								Problem 2 									*/
+**#								Problem 2 									
 *=============================================================================
 
 /* (a) Consider now all the three countries. Estimate for the two industries available in NACE Rev. 2 2-digit format the production function coefficients, by using standard OLS, the Wooldridge (WRDG) and the Levinsohn & Petrin (LP) procedure. How do you treat the fact that data come from different countries in different years in the productivity estimation? */
+
+	/*(i) OLS: Straight linear regression of log(value added) on log(labor) and log(capital); potentially biased if firms choose inputs based on unobserved productivity shocks. */
+
+*sector 13 (Textiles) controlling for country and year*
+xi: reg ln_real_VA ln_L ln_real_K i.country i.year if sector==13
+predict ln_TFP_OLS_13, residuals 
+
+gen TFP_OLS_13= exp(ln_TFP_OLS_13)
+
+kdensity TFP_OLS_13, title("OLS TFP (Sector 13 - Textiles)")
+
+*sector 29 (Automotive) controlling for country and year*
+xi: reg ln_real_VA ln_L ln_real_K i.country i.year if sector==29
+predict ln_TFP_OLS_29, residuals 
+
+gen TFP_OLS_29= exp(ln_TFP_OLS_29)
+
+kdensity TFP_OLS_29, title("OLS TFP (Sector 29 - Automotive)")
+	
+	/* (ii) Wooldridge (WRDG): Further refinements of proxy variable methods; attempt to handle collinearity issues (ACF) and to combine multiple steps into a single estimation (Wooldridge) to improve efficiency. */
+
+*sector 13 (Textiles) controlling for country*
+
+xi: prodest ln_real_VA if sector==13, ///
+	met(wrdg) ///
+	free(ln_L) proxy(ln_real_M) state(ln_real_K) ///
+	control(dcountry_1 dcountry_2 dcountry_3) ///
+	va 
+	
+predict ln_TFP_WRDG_13, resid
+
+gen TFP_WRDG_13=exp(ln_TFP_WRDG_13)
+
+kdensity TFP_WRDG_13, title("WRDG TFP (Sector 13 - Textiles)")
+
+*sector 29 (Automotive) controlling for country*
+
+xi: prodest ln_real_VA if sector==29, ///
+	met(wrdg) ///
+	free(ln_L) proxy(ln_real_M) state(ln_real_K) ///
+	control(dcountry_1 dcountry_2 dcountry_3) ///
+	va
+	
+predict ln_TFP_WRDG_29, resid
+
+gen TFP_WRDG_29=exp(ln_TFP_WRDG_29)
+
+kdensity TFP_WRDG_29, title("WRDG TFP (Sector 29 - Automotive)")
+
+	/* (iii) Levinsohn & Petrin (LP): Uses intermediate inputs (e.g., materials) as a proxy for unobserved productivity; partially addresses the endogeneity problem that arises if high-productivity firms systematically choose more inputs. */
+	
+*sector 13 (Textiles) controlling for country and year*
+
+xi: levpet ln_real_VA if sector==13, free(ln_L i.country i.year) proxy(ln_real_M) capital(ln_real_K) reps(20) level(99)
+
+predict TFP_LP_13, omega
+
+*sector 29 (Automotive) controlling for country and year*
+
+xi: levpet ln_real_VA if sector==29, free(ln_L i.country i.year) proxy(ln_real_M) capital(ln_real_K) reps(20) level(99)
+
+predict TFP_LP_29, omega
 
 	/* A: answer and comment */
 
@@ -89,19 +173,129 @@ restore
 
 	/* A: answer and comment */
 
+
 *=============================================================================
-/* 								Problem 3 									*/
+**#								Problem 3 									
 *=============================================================================
 
 /* (a) Would there be any difference in estimating the production function using revenues rather than added values in LP, WRDG or OLS? Why is it so? Discuss the issue theoretically, considering the assumptions behind the Cobb-Douglas production function. */
 
-	/* A: answer and comment */
+	/* A: See overleaf */
+
 
 *=============================================================================
-/* 								Problem 4 									*/
+**#  							Problem 4 							
 *=============================================================================
+
+use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b7808de62ba85f86396e28f7cbf865ac9771cafe/data/EEI_TH_2025.dta", clear
+
+tab country, generate(dcountry_)
+tab year, generate(dyear_)
+
+foreach var in real_sales real_M real_K L real_VA {
+    gen ln_`var' = ln(`var')
+}
 
 /* (a) Comment on the presence of "extreme" values in both industries. Clear the TFP estimates from these extreme values (1st and 99th percentiles) and save a "cleaned sample". From now on, focus on this sample. Plot the kdensity of the TFP distribution and the kdensity of the logarithmic transformation of TFP in each industry. What do you notice? Are there any differences if you rely on the LP or WRDG procedure? Comment. */
+
+/* OLS */
+
+	*sector 13 (Textiles)*
+	
+xi: reg ln_real_VA ln_L ln_real_K if sector==13
+predict ln_TFP_OLS_13, residuals 
+
+gen TFP_OLS_13= exp(ln_TFP_OLS_13)
+
+	*sector 29 (Automotive)*
+	
+xi: reg ln_real_VA ln_L ln_real_K if sector==29
+predict ln_TFP_OLS_29, residuals 
+
+gen TFP_OLS_29= exp(ln_TFP_OLS_29)
+
+	*clearing outliers*
+
+replace TFP_OLS_13=. if !inrange(TFP_OLS_13,r(p1),r(p99))
+replace TFP_OLS_29=. if !inrange(TFP_OLS_29,r(p1),r(p99))
+
+replace ln_TFP_OLS_13=. if !inrange(ln_TFP_OLS_13,r(p1),r(p99))
+replace ln_TFP_OLS_29=. if !inrange(ln_TFP_OLS_29,r(p1),r(p99))
+
+gen TFP_OLS = .
+replace TFP_OLS=TFP_OLS_13 if sector==13
+replace TFP_OLS=TFP_OLS_29 if sector==29
+gen ln_TFP_OLS=ln(TFP_OLS)
+
+
+/* Wooldridge (WRDG) */
+
+	*sector 13 (Textiles)*
+
+xi: prodest ln_real_VA if sector==13, ///
+	met(wrdg) ///
+	free(ln_L) proxy(ln_real_M) state(ln_real_K) ///
+	va 
+	
+predict ln_TFP_WRDG_13, resid
+
+gen TFP_WRDG_13=exp(ln_TFP_WRDG_13)
+
+	*sector 29 (Automotive)*
+
+xi: prodest ln_real_VA if sector==29, ///
+	met(wrdg) ///
+	free(ln_L) proxy(ln_real_M) state(ln_real_K) ///
+	va
+	
+predict ln_TFP_WRDG_29, resid
+
+gen TFP_WRDG_29=exp(ln_TFP_WRDG_29)
+
+	*clearing outliers*
+
+replace TFP_WRDG_13=. if !inrange(TFP_WRDG_13,r(p1),r(p99))
+replace TFP_WRDG_29=. if !inrange(TFP_WRDG_29,r(p1),r(p99))
+
+replace ln_TFP_WRDG_13=. if !inrange(ln_TFP_WRDG_13,r(p1),r(p99))
+replace ln_TFP_WRDG_29=. if !inrange(ln_TFP_WRDG_29,r(p1),r(p99))
+
+gen TFP_WRDG = .
+replace TFP_WRDG=TFP_WRDG_13 if sector==13
+replace TFP_WRDG=TFP_WRDG_29 if sector==29
+gen ln_TFP_WRDG=ln(TFP_WRDG)
+
+/* Levinsohn & Petrin (LP) */
+
+	*sector 13 (Textiles)*
+
+xi: levpet ln_real_VA if sector==13, free(ln_L) proxy(ln_real_M) capital(ln_real_K) reps(20) level(99)
+
+predict TFP_LP_13, omega
+
+gen ln_TFP_LP_13 =ln(TFP_LP_13)
+
+	*sector 29 (Automotive)*
+
+xi: levpet ln_real_VA if sector==29, free(ln_L) proxy(ln_real_M) capital(ln_real_K) reps(20) level(99)
+
+predict TFP_LP_29, omega
+
+gen ln_TFP_LP_29 =ln(TFP_LP_29)
+
+	*clearing outliers*
+
+replace TFP_LP_13=. if !inrange(TFP_LP_13,r(p1),r(p99))
+replace TFP_LP_29=. if !inrange(TFP_LP_29,r(p1),r(p99))
+
+gen TFP_LP = .
+replace TFP_LP=TFP_LP_13 if sector==13
+replace TFP_LP=TFP_LP_29 if sector==29
+gen ln_TFP_LP=ln(TFP_LP)
+
+twoway (kdensity TFP_OLS if sector==13, lcolor(green)) || (kdensity TFP_OLS if sector==29, lcolor(green) lp(dash)) || (kdensity TFP_WRDG if sector==13, lcolor(sienna)) || (kdensity TFP_WRDG if sector==29, lcolor(sienna) lp(dash)) || (kdensity TFP_LP if sector==13, lcolor(blue)) || (kdensity TFP_LP if sector==29, lcolor(sienna) lp(dash)), title("TFP Density compared") legend(label(1 "Textile") label(2 "Machinery") label(3 "Chemical")) 
+
+twoway (kdensity TFP_LP if sector==13, lcolor(green)) || (kdensity TFP_LP if sector==28, lcolor(sienna)) || (kdensity TFP_LP if sector==24, lcolor(black) lp(dash)), title("TFP Density compared") legend(label(1 "Textile") label(2 "Machinery") label(3 "Chemical")) 
 
 	/* A: answer and comment */
 
@@ -127,7 +321,7 @@ restore
 *=============================================================================
 
 *=============================================================================
-/* 								Problem 5 									*/
+**# Bookmark #9
 *=============================================================================
 
 /* (a) Merge the first three datasets together. Compute the China shock for each region, in each year for which it is possible, according to the equation above. Use a lag of 5 years to compute the import deltas (i.e., growth in imports between t-6 and t-1). Repeat the same procedure with US imports, i.e., substituting ∆IM P Chinackt with ∆IM P ChinaU SAkt, following the identification strategy by Colantone and Stanig (AJPS, 2018). */
@@ -143,7 +337,7 @@ restore
 	/* A: answer and comment */
 
 *=============================================================================
-/* 								Problem 6 									*/
+**# 							Problem 6 									
 *=============================================================================
 
 /* Use the dataset "EEI TH P6 2025.dta" to construct an average of TFP and wages during the post-crisis years (2014-2017). Create a lag of 3 years in the control variables (education, GDP and population). Now merge the data you have obtained with data on the China shock (region-specific average). */
@@ -161,7 +355,7 @@ restore
 	/* A: answer and comment */
 
 *=============================================================================
-/* 								Problem 7 									*/
+**# 							Problem 7 									
 *=============================================================================
 
 /* (a) Merge the ESS dataset with data on the China shock (region-specific average), based on the region of residence of each respondent. */

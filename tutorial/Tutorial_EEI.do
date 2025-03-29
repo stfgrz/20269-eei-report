@@ -1,5 +1,3 @@
-clear all
-
 *FIRST PART OF THE FILE */* IS DATA PREPARATION FROM ORIGINAL BALANCE SHEET DATA
 
 /*
@@ -45,9 +43,7 @@ keep year country sector mark K real_K M real_M L W sales real_sales real_VA VA 
 
 */
 
-log using tutorial_EEI
-
-use STATA_Tutorial_EEI.dta, replace
+use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/8736ee88bd03661090fab24454d698cdd9b6cc2c/tutorial/STATA_Tutorial_EEI.dta", clear
 
 *create logarithms 
 
@@ -209,11 +205,6 @@ qui reg rhs_LP ln_TFP_LP if sector==`s' & year==2008
 outreg2 using Pareto.xls, append title("Pareto Distribution") ctitle("Sector `s' - 2008")
 }
 
-
-
-
-
-log close
 
 *********MARKUP ESTIMATION
 
