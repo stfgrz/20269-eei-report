@@ -65,13 +65,13 @@ foreach var in real_sales real_M real_K L real_VA {
 /* (a) Focus only on French firms. Starting from balance-sheet data, provide some descriptive statistics (e.g. n. of firms, average capital, revenues, number of employees, value added) in 2007 comparing firms in sector 13 (textiles) and firms in sector 29 (motor vehicles, trailers and semi-trailers) for the region Nord - Pas de Calais -> FR30. Please use the NUTS level 2 - 2013 definition. Comment briefly. */
 
 preserve
-	keep if country == "France" & nuts2 == "FR30" & year == 2007 & (sector == 13 | sector == 29)
+	keep if nuts2 == "FR30" & year == 2007
 	
 	tabulate sector
 
-	tabstat real_sales real_K real_M real_VA, by(sector) statistics(n mean sd min max) format(%9.2f)
+	tabstat real_sales real_K real_M real_VA L W, by(sector) statistics(n mean sd min max) format(%9.2f)
 	
-	dtable real_sales real_K real_M real_VA L W i.sizeclass, by(sector) ///
+	dtable real_sales real_K real_M real_VA L W i.sizeclass, by(sector) /// 
 		nformat(%7.2f mean sd) ///
 		title(Table 1. Descriptive statistics for textiles and automotive in Pas de Calais, France, in 2007) ///
 		export(output/table1.html, replace) 
@@ -84,11 +84,11 @@ restore
 /* (b) Compare the descriptive statistics that you have analyzed in point (a) for 2007 to the same figures in 2017. What changes? Comment and give an interpretation.*/
 
 preserve
-	keep if country == "France" & nuts2 == "FR30" & year == 2017 & (sector == 13 | sector == 29)
+	keep if nuts2 == "FR30" & year == 2017
 	
 	tabulate sector
 
-	tabstat real_sales real_K real_M real_VA, by(sector) statistics(n mean sd min max) format(%9.2f)
+	tabstat real_sales real_K real_M real_VA L W, by(sector) statistics(n mean sd min max) format(%9.2f)
 	
 	dtable real_sales real_K real_M real_VA L W i.sizeclass, by(sector) ///
 		nformat(%7.2f mean sd) ///
