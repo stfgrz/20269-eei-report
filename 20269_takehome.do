@@ -49,7 +49,6 @@ if ("`user'" == "simon") {
 /*)))))))))))))))))))) 			PART 1 			((((((((((((((((((((((((((((*/
 *=============================================================================
 
-use "https://raw.githubusercontent.com/stfgrz/20295-microeconometrics-ps/abc3c6d67f27161b9899cedb19c8ff1016402746/ps1/jtrain2.dta", clear
 use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b7808de62ba85f86396e28f7cbf865ac9771cafe/data/EEI_TH_2025.dta", clear
 
 *=============================================================================
@@ -68,7 +67,15 @@ restore
 
 	/* A: answer and comment */
 	
-/* (b) Compare the descriptive statistics that you have analyzed in point a. for 2007 to the same figures in 2017. What changes? Comment and give an interpretation.*/
+/* (b) Compare the descriptive statistics that you have analyzed in point (a) for 2007 to the same figures in 2017. What changes? Comment and give an interpretation.*/
+
+preserve
+	keep if country == "France" & nuts2 == "FR30" & year == 2017 & (sector == 13 | sector == 29)
+	
+	tabulate sector
+
+	tabstat K sales L real_VA, by(sector) statistics(n mean sd min max) format(%9.2f)
+restore
 
 *=============================================================================
 /* 								Problem 2 									*/
