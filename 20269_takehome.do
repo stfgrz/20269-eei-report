@@ -327,24 +327,26 @@ twoway (kdensity TFP_LP if sector==13, lcolor(green)) || (kdensity TFP_LP if sec
 
 ssc install shp2dta, replace
 ssc install spmap, replace
-ssc install spmap2dta, replace
+
 /* (a) Merge the first three datasets together. Compute the China shock for each region, in each year for which it is possible, according to the equation above. Use a lag of 5 years to compute the import deltas (i.e., growth in imports between t-6 and t-1). Repeat the same procedure with US imports, i.e., substituting ∆IM P Chinackt with ∆IM P ChinaU SAkt, following the identification strategy by Colantone and Stanig (AJPS, 2018). */
 
-*—— 1. Load pre-sample employment shares (first year only) ———————————————*
+	*—— i. Load pre-sample employment shares (first year only) ———————————————*
 use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Employment_Shares_Take_Home.dta", clear
 
 bysort country nace (year): keep if _n==1         // keep only pre-sample
 keep country nuts2 nace empl tot_empl_nuts2 tot_empl_country_nace
-save "weights_pre.dta", replace
+save "$output/weights_pre.dta", replace
 
-*—— 2. China imports delta ——————————————————————————————————————————————*
+	*—— ii. China imports delta ——————————————————————————————————————————————*
 use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Imports_China_Take_Home.dta", clear
 
-merge m:1 country nace using "weights_pre.dta"
+merge m:1 country nace using "$output/weights_pre.dta"
 assert _merge==3
 drop _merge
 
-xtset country nace year
+egen panel_id = group(country nace)
+xtset panel_id year
+
 gen imp1  = L.real_imports_china      // imports at t−1
 gen imp6  = L6.real_imports_china     // imports at t−6
 gen deltaC = imp1 - imp6              // 5-year growth
@@ -354,17 +356,18 @@ gen w_dC    = w_rk * scaledC
 
 bysort country nuts2 year: egen ChinaShock = total(w_dC)
 keep country nuts2 year ChinaShock
-save "ChinaShock_by_region_year.dta", replace
+save "$output/ChinaShock_by_region_year.dta", replace
 
-*—— 3. US imports delta (instrument) ————————————————————————————————————*
+	*—— iii. US imports delta (instrument) ————————————————————————————————————*
 use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Imports_US_China_Take_Home.dta", clear
 
-xtset nace year
+egen nace_id = group(nace)
+xtset nace_id year
 
 gen us1    = L.real_USimports_china
 gen us6    = L6.real_USimports_china
 gen deltaUS = us1 - us6
-merge m:1 nace using "weights_pre.dta"
+merge m:1 nace_id using "$output/weights_pre.dta"
 assert _merge==3
 drop _merge
 
@@ -373,19 +376,19 @@ gen w_dUS    = w_rk * scaledUS
 
 bysort country nuts2 year: egen USShock = total(w_dUS)
 keep country nuts2 year USShock
-save "USShock_by_region_year.dta", replace
+save "$output/USShock_by_region_year.dta", replace
 
 /* (b) Collapse the dataset by region to obtain the average 5-year China shock over the sample period. This will be the average of all available years' shocks (for reference, see Colantone and Stanig, American Political Science Review, 2018). You should now have a dataset with cross-sectional data. */
 
 use "ChinaShock_by_region_year.dta", clear
-merge 1:1 country nuts2 year using "USShock_by_region_year.dta"
+merge 1:1 country nuts2 year using "$output/USShock_by_region_year.dta"
 assert _merge==3
 drop _merge
 
 * Compute each region's average 5-year shock over all years available
 collapse (mean) ChinaShock USShock, by(country nuts2)
 
-save "region_shocks_avg.dta", replace
+save "$output/region_shocks_avg.dta", replace
 
 /* (c) Produce a map visualizing the China shock for each region, i.e., with darker shades reflecting stronger shocks. Going back to the "Employment Shares Take Home.dta", do the same with respect to the overall pre-sample share of employment in the manufacturing sector. Do you notice any similarities between the two maps? What were your expectations? Comment. LINK TO TUTORIAL ON THE PDF */
 
