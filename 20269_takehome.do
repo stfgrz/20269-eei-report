@@ -35,6 +35,7 @@ if ("`user'" == "stefanograziosi") {
 	cd "/Users/stefanograziosi/Documents/GitHub/20269-eei-report"
     global filepath "/Users/stefanograziosi/Documents/GitHub/20269-eei-report"
 	global output "/Users/stefanograziosi/Documents/GitHub/20269-eei-report/output"
+	global data "/Users/stefanograziosi/Documents/GitHub/20269-eei-report/data"
 }
 
 if ("`user'" == "enricoancona") {
@@ -321,20 +322,142 @@ twoway (kdensity TFP_LP if sector==13, lcolor(green)) || (kdensity TFP_LP if sec
 *=============================================================================
 
 *=============================================================================
-**# Bookmark #9
+**# 							Problem 5
 *=============================================================================
+
+ssc install spmap, replace
+ssc install shp2dta, replace
+ssc install mif2dta, replace
 
 /* (a) Merge the first three datasets together. Compute the China shock for each region, in each year for which it is possible, according to the equation above. Use a lag of 5 years to compute the import deltas (i.e., growth in imports between t-6 and t-1). Repeat the same procedure with US imports, i.e., substituting ∆IM P Chinackt with ∆IM P ChinaU SAkt, following the identification strategy by Colantone and Stanig (AJPS, 2018). */
 
-	/* A: answer and comment */
+	*—— i. Load pre-sample employment shares (first year only) ———————————————*
+use "/Users/stefanograziosi/Documents/GitHub/20269-eei-report/data/Employment_Shares_Take_Home.dta", clear //SOSTITUISCI CON "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Employment_Shares_Take_Home.dta"
+
+sort year country nace
+
+gen ratio_left = empl / tot_empl_nuts2
+save "$output/weights.dta", replace
+
+	*—— ii. China imports delta ——————————————————————————————————————————————*
+use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Imports_China_Take_Home.dta", clear
+
+sort year country nace
+
+merge 1:m year country nace using "$output/weights.dta"
+
+egen panel_id = group(country nace nuts2)
+xtset panel_id year
+
+gen imp1  				= L.real_imports_china      							// imports at t−1
+gen imp6  				= L6.real_imports_china     							// imports at t−6
+gen delta_IMP_china 	= imp1 - imp6              								// 5-year growth
+gen ratio_right 		= delta_IMP_china / tot_empl_country_nace
+gen china_shock 		= ratio_left * ratio_right
+
+drop if missing(china_shock)													// Need to understand why it removes so many obs | A: date issue
+
+bysort country nuts2 year: egen sum_china_shock = total(china_shock)
+
+save "$output/ChinaShock_by_region_year.dta", replace
+
+	*—— iii. US imports delta (instrument) ————————————————————————————————————*
+use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Imports_US_China_Take_Home.dta", clear
+
+gen country = "USA"
+gen real_imports_china = .
+
+sort year country nace
+replace real_imports_china = real_USimports_china if country == "USA" & missing(real_imports_china)
+
+merge 1:m year nace using "$output/weights.dta"
+
+drop if year < 1989
+drop if year >= 2007
+
+egen panel_id_us = group (nace nuts2)
+xtset panel_id_us year
+
+gen imp1_us    			= L.real_USimports_china
+gen imp6_us    			= L6.real_USimports_china
+gen delta_IMP_china_us	= imp1_us - imp6_us
+gen ratio_right_us		= delta_IMP_china_us / tot_empl_country_nace
+gen china_shock_us		= ratio_left * ratio_right_us
+
+drop if missing(china_shock_us)
+
+bysort nuts2 year: egen sum_china_shock_us = total(china_shock_us)
+
+save "$output/ChinaShock_by_region_year_us.dta", replace
 
 /* (b) Collapse the dataset by region to obtain the average 5-year China shock over the sample period. This will be the average of all available years' shocks (for reference, see Colantone and Stanig, American Political Science Review, 2018). You should now have a dataset with cross-sectional data. */
 
-	/* A: answer and comment */
+	*—— Collapse observation dataset ——————————————————————————————*
 
+use "$output/ChinaShock_by_region_year.dta", clear
+collapse (mean) china_shock, by(country nuts2 year)
+save "$output/ChinaShock_by_region_year_collapsed.dta", replace
+
+use "$output/ChinaShock_by_region_year_collapsed.dta"
+collapse (mean) china_shock, by (nuts2)
+save "$output/ChinaShock_by_region_year_collapsed_MAPS.dta", replace
+ 
+	*—— Collapse instrument dataset ——————————————————————————————*
+
+use "$output/ChinaShock_by_region_year_us.dta", clear
+collapse (mean) china_shock, by(country nuts2 year)
+save "$output/ChinaShock_by_region_year_collapsed_us.dta", replace
+
+use "$output/ChinaShock_by_region_year_collapsed_us.dta"
+collapse (mean) china_shock, by (nuts2)
+save "$output/ChinaShock_by_region_year_collapsed_us_MAPS.dta", replace
+
+	*—— Merge the two dataset ——————————————————————————————*
+
+use "$output/ChinaShock_by_region_year_collapsed.dta", clear
+
+drop if year < 1989
+drop if year >= 2007
+
+merge 1:1 country nuts2 year using "$output/ChinaShock_by_region_year_collapsed_us.dta"
+	
 /* (c) Produce a map visualizing the China shock for each region, i.e., with darker shades reflecting stronger shocks. Going back to the "Employment Shares Take Home.dta", do the same with respect to the overall pre-sample share of employment in the manufacturing sector. Do you notice any similarities between the two maps? What were your expectations? Comment. LINK TO TUTORIAL ON THE PDF */
 
-	/* A: answer and comment */
+	*—— Load & merge region-cross-section shocks ——————————————————————————————*
+use "region_shocks_avg.dta", clear
+
+	*—— Convert & merge NUTS-2 shapefile ————————————————————————————————————*
+shp2dta using "NUTS_RG_01M_2013_4326.shp", ///
+    database(nuts2db) coordinates(nuts2coord) genid(id)
+
+use nuts2db.dta, clear
+rename id nuts2
+merge 1:1 nuts2 using "region_shocks_avg.dta"
+assert _merge==3
+drop _merge
+
+	*—— Map average China shock ——————————————————————————————————————*
+spmap ChinaShock using nuts2coord.dta, id(nuts2) ///
+    fcolor(Blues) ocolor(none) ///
+    title("Avg. 5-Year China Shock by NUTS-2 Region")
+
+	*—— Compute & map pre-sample manufacturing share ——————————————————————*
+use "weights_pre.dta", clear
+collapse (sum) mfg_emp=empl, by(country nuts2)
+merge m:1 country nuts2 using "weights_pre.dta", ///
+    keepusing(tot_empl_nuts2)
+gen mfg_share = mfg_emp / tot_empl_nuts2
+
+use nuts2db.dta, clear
+rename id nuts2
+merge 1:1 nuts2 using ///
+    mfg_emp mfg_share using("weights_pre.dta")
+assert _merge==3
+drop _merge
+
+spmap mfg_share using nuts2coord.dta, id(nuts2) ///
+    fcolor(Reds) ocolor(none) ///
+    title("Pre-Sample Manufacturing Share by NUTS-2 Region")
 
 *=============================================================================
 **# 							Problem 6 									
@@ -357,6 +480,8 @@ twoway (kdensity TFP_LP if sector==13, lcolor(green)) || (kdensity TFP_LP if sec
 *=============================================================================
 **# 							Problem 7 									
 *=============================================================================
+
+https://github.com/stfgrz/20269-eei-report/blob/ddb4ad97f3974b2ba537498cbeea090d2b6ed3d1/data/ESS8e02_3.dta
 
 /* (a) Merge the ESS dataset with data on the China shock (region-specific average), based on the region of residence of each respondent. */
 
