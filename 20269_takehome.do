@@ -328,23 +328,27 @@ twoway (kdensity TFP_LP if sector==13, lcolor(green)) || (kdensity TFP_LP if sec
 ssc install spmap, replace
 ssc install shp2dta, replace
 ssc install mif2dta, replace
+ssc install palettes, replace
+ssc install colrspace, replace
+set scheme s2color
 
 /* (a) Merge the first three datasets together. Compute the China shock for each region, in each year for which it is possible, according to the equation above. Use a lag of 5 years to compute the import deltas (i.e., growth in imports between t-6 and t-1). Repeat the same procedure with US imports, i.e., substituting ∆IM P Chinackt with ∆IM P ChinaU SAkt, following the identification strategy by Colantone and Stanig (AJPS, 2018). */
 
 	*—— i. Load pre-sample employment shares (first year only) ———————————————*
-use "/Users/stefanograziosi/Documents/GitHub/20269-eei-report/data/Employment_Shares_Take_Home.dta", clear //SOSTITUISCI CON "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Employment_Shares_Take_Home.dta"
+use "$data/Employment_Shares_Take_Home.dta", clear //SOSTITUISCI CON "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Employment_Shares_Take_Home.dta"
 
-sort year country nace
+sort country nuts2 nace year
 
 gen ratio_left = empl / tot_empl_nuts2
-save "$output/weights.dta", replace
+
+save "$output/weights_pre.dta", replace
 
 	*—— ii. China imports delta ——————————————————————————————————————————————*
 use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Imports_China_Take_Home.dta", clear
 
 sort year country nace
 
-merge 1:m year country nace using "$output/weights.dta"
+merge 1:m year country nace using "$output/weights_pre.dta"
 
 egen panel_id = group(country nace nuts2)
 xtset panel_id year
@@ -352,12 +356,10 @@ xtset panel_id year
 gen imp1  				= L.real_imports_china      							// imports at t−1
 gen imp6  				= L6.real_imports_china     							// imports at t−6
 gen delta_IMP_china 	= imp1 - imp6              								// 5-year growth
-gen ratio_right 		= delta_IMP_china / tot_empl_country_nace
-gen china_shock 		= ratio_left * ratio_right
+gen ratio_right 		= delta_IMP_china / tot_empl_country_nace				// Normalised \Delta IMP china
+gen china_shock 		= ratio_left * ratio_right								// Individual element of the china shock
 
-drop if missing(china_shock)													// Need to understand why it removes so many obs | A: date issue
-
-bysort country nuts2 year: egen sum_china_shock = total(china_shock)
+bysort country nuts2 year: egen sum_china_shock = total(china_shock)			// Summation of the individual china shocks
 
 save "$output/ChinaShock_by_region_year.dta", replace
 
@@ -365,15 +367,10 @@ save "$output/ChinaShock_by_region_year.dta", replace
 use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Imports_US_China_Take_Home.dta", clear
 
 gen country = "USA"
-gen real_imports_china = .
 
 sort year country nace
-replace real_imports_china = real_USimports_china if country == "USA" & missing(real_imports_china)
 
-merge 1:m year nace using "$output/weights.dta"
-
-drop if year < 1989
-drop if year >= 2007
+merge 1:m year nace using "$output/weights_pre.dta"
 
 egen panel_id_us = group (nace nuts2)
 xtset panel_id_us year
@@ -395,69 +392,91 @@ save "$output/ChinaShock_by_region_year_us.dta", replace
 	*—— Collapse observation dataset ——————————————————————————————*
 
 use "$output/ChinaShock_by_region_year.dta", clear
-collapse (mean) china_shock, by(country nuts2 year)
-save "$output/ChinaShock_by_region_year_collapsed.dta", replace
-
-use "$output/ChinaShock_by_region_year_collapsed.dta"
-collapse (mean) china_shock, by (nuts2)
-save "$output/ChinaShock_by_region_year_collapsed_MAPS.dta", replace
+collapse (mean) sum_china_shock, by(nuts2 nuts2_name)
+rename nuts2        	NUTS_ID
+rename nuts2_name   	NAME_LATN
+save "$output/collapsedimpshock.dta", replace
  
 	*—— Collapse instrument dataset ——————————————————————————————*
 
 use "$output/ChinaShock_by_region_year_us.dta", clear
-collapse (mean) china_shock, by(country nuts2 year)
-save "$output/ChinaShock_by_region_year_collapsed_us.dta", replace
+collapse (mean) sum_china_shock_us, by(nuts2 nuts2_name)
+rename nuts2        	NUTS_ID
+rename nuts2_name   	NAME_LATN
+save "$output/collapsedimpshock_us.dta", replace
 
-use "$output/ChinaShock_by_region_year_collapsed_us.dta"
-collapse (mean) china_shock, by (nuts2)
-save "$output/ChinaShock_by_region_year_collapsed_us_MAPS.dta", replace
+/*NOTA BENE: il secondo dataset americano contiene osservazioni per 1989 - 2006, quello europeo invece 1988 - 2007. Vogliamo fare trimming del primo e ultimo anno prima di fare merge o lasciamo così ed elaboriamo in seguito? Dato che la cartina va fatta con il dataset europeo penso sia melgio avere più dati */
 
 	*—— Merge the two dataset ——————————————————————————————*
 
-use "$output/ChinaShock_by_region_year_collapsed.dta", clear
+use "$output/collapsedimpshock.dta", clear
 
-drop if year < 1989
-drop if year >= 2007
+merge 1:1 NUTS_ID using "$output/collapsedimpshock_us.dta"
+drop _merge
 
-merge 1:1 country nuts2 year using "$output/ChinaShock_by_region_year_collapsed_us.dta"
+save "$output/sum_china_shock_merged", replace
 	
 /* (c) Produce a map visualizing the China shock for each region, i.e., with darker shades reflecting stronger shocks. Going back to the "Employment Shares Take Home.dta", do the same with respect to the overall pre-sample share of employment in the manufacturing sector. Do you notice any similarities between the two maps? What were your expectations? Comment. LINK TO TUTORIAL ON THE PDF */
 
-	*—— Load & merge region-cross-section shocks ——————————————————————————————*
-use "region_shocks_avg.dta", clear
 
 	*—— Convert & merge NUTS-2 shapefile ————————————————————————————————————*
-shp2dta using "NUTS_RG_01M_2013_4326.shp", ///
-    database(nuts2db) coordinates(nuts2coord) genid(id)
+shp2dta using "/Users/stefanograziosi/Documents/GitHub/20269-eei-report/data/NUTS_RG_20M_2013_3035.shp", database("nuts2_db.dta") coordinates("nuts2_coords.dta") genid(uid) replace
 
-use nuts2db.dta, clear
-rename id nuts2
-merge 1:1 nuts2 using "region_shocks_avg.dta"
-assert _merge==3
+	*—— Load & merge region-cross-section shocks ——————————————————————————————*
+use "nuts2_db.dta", clear
+describe
+
+merge 1:1 NUTS_ID using "$output/sum_china_shock_merged.dta"
+drop if _merge==1
 drop _merge
 
 	*—— Map average China shock ——————————————————————————————————————*
-spmap ChinaShock using nuts2coord.dta, id(nuts2) ///
-    fcolor(Blues) ocolor(none) ///
-    title("Avg. 5-Year China Shock by NUTS-2 Region")
+spmap sum_china_shock using "nuts2_coords.dta", id(uid) 						///
+    fcolor(Blues) clmethod(kmeans) clnumber(8) ocolor(none) 					///
+    title("Avg. 5-Year China Shock by NUTS-2 Region") 							///
+    note("Source: own elaboration based on Colantone and Stanig (AJPS, 2018)", size(2.5)) ///
+	subtitle("1988 to 2007 sample; quantile shading", size(4))
+	
+kdensity sum_china_shock
+
+/* IMPORTANT - Why kmeans 
+
+
+
+*/
 
 	*—— Compute & map pre-sample manufacturing share ——————————————————————*
-use "weights_pre.dta", clear
-collapse (sum) mfg_emp=empl, by(country nuts2)
-merge m:1 country nuts2 using "weights_pre.dta", ///
-    keepusing(tot_empl_nuts2)
-gen mfg_share = mfg_emp / tot_empl_nuts2
+use "$data/Employment_Shares_Take_Home.dta", clear
 
-use nuts2db.dta, clear
-rename id nuts2
-merge 1:1 nuts2 using ///
-    mfg_emp mfg_share using("weights_pre.dta")
-assert _merge==3
+keep if year==1988
+
+collapse (sum) empl tot_empl_nuts2, by(country nuts2)
+
+gen manuf_share = empl / tot_empl_nuts2
+
+rename nuts2 NUTS_ID
+
+save "$output/manuf_share.dta", replace
+
+use "nuts2_db.dta", clear
+describe
+
+
+merge 1:1 NUTS_ID using "$output/manuf_share.dta"
+keep if _merge==3
 drop _merge
 
-spmap mfg_share using nuts2coord.dta, id(nuts2) ///
-    fcolor(Reds) ocolor(none) ///
-    title("Pre-Sample Manufacturing Share by NUTS-2 Region")
+
+spmap manuf_share using "nuts2_coords.dta", ///
+    id(uid) ///
+    fcolor(Greens)  ///
+    clmethod(kmeans) ///
+    clnumber(8) ///
+    ocolor(none) ///
+    title("Pre-sample Manufacturing Share by NUTS-2 Region") ///
+    subtitle("Year 1988; k-means classes") ///
+    note("Source: own elaboration", size(2.5))
+
 
 *=============================================================================
 **# 							Problem 6 									
