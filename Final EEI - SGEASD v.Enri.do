@@ -172,8 +172,9 @@ Moreover, it is worth noticing that both industries underwent a process "cost ra
 
 	/*(i) OLS: Straight linear regression of log(value added) on log(labor) and log(capital); potentially biased if firms choose inputs based on unobserved productivity shocks. */
 
-*sector 13 (Textiles) controlling for country and year*
-xi: reg ln_real_VA ln_L ln_real_K i.country i.year if sector==13
+*sector 13 (Textiles) controlling for country and year* *eststo*
+xi: reg ln_real_VA ln_L ln_real_K i.country i.year if sector==13  
+eststo OLS_13
 predict ln_TFP_OLS_13, residuals 
 
 gen TFP_OLS_13= exp(ln_TFP_OLS_13)
@@ -183,6 +184,8 @@ kdensity TFP_OLS_13, title("OLS TFP (Sector 13 - Textiles)")
 
 *sector 29 (Automotive) controlling for country and year*
 xi: reg ln_real_VA ln_L ln_real_K i.country i.year if sector==29
+eststo OLS_29
+
 predict ln_TFP_OLS_29, residuals 
 
 gen TFP_OLS_29= exp(ln_TFP_OLS_29)
@@ -191,16 +194,15 @@ kdensity TFP_OLS_29, title("OLS TFP (Sector 29 - Automotive)")
 	
 	/* (ii) Wooldridge (WRDG): Further refinements of proxy variable methods; attempt to handle collinearity issues (ACF) and to combine multiple steps into a single estimation (Wooldridge) to improve efficiency. */
 
-*sector 13 (Textiles) controlling for country*
+*sector 13 (Textiles) controlling for country* * QUESTION (Enri) - Why do not control for year trends here?
 
 xi: prodest ln_real_VA if sector==13, ///
 	met(wrdg) ///
 	free(ln_L) proxy(ln_real_M) state(ln_real_K) ///
 	control(dcountry_1 dcountry_2 dcountry_3) ///
 	va 
-	
-* QUESTION (Enri) - Why do not control for year trends here?
-	
+eststo WRDG_13
+
 predict ln_TFP_WRDG_13, resid
 
 gen TFP_WRDG_13=exp(ln_TFP_WRDG_13)
@@ -214,7 +216,8 @@ xi: prodest ln_real_VA if sector==29, ///
 	free(ln_L) proxy(ln_real_M) state(ln_real_K) ///
 	control(dcountry_1 dcountry_2 dcountry_3) ///
 	va
-	
+eststo WRDG_29
+
 predict ln_TFP_WRDG_29, resid
 
 gen TFP_WRDG_29=exp(ln_TFP_WRDG_29)
@@ -226,18 +229,123 @@ kdensity TFP_WRDG_29, title("WRDG TFP (Sector 29 - Automotive)")
 *sector 13 (Textiles) controlling for country and year*
 
 xi: levpet ln_real_VA if sector==13, free(ln_L i.country i.year) proxy(ln_real_M) capital(ln_real_K) reps(20) level(99)
+eststo LP_13
 
 predict TFP_LP_13, omega
 
 *sector 29 (Automotive) controlling for country and year*
 
 xi: levpet ln_real_VA if sector==29, free(ln_L i.country i.year) proxy(ln_real_M) capital(ln_real_K) reps(20) level(99)
+eststo LP_29
 
 predict TFP_LP_29, omega
 
 	/* A: answer and comment */
 
 /* (b) Present a Table (SEE THE ONE IN THE PDF), where you compare the coefficients obtained in the estimation outputs, indicating their significance levels (*, ** or *** for 10, 5 and 1 per cent). Is there any bias of the labour coefficients? What is the reason for that? */
+
+esttab LP_13 WRDG_13 OLS_13   LP_29 WRDG_29 OLS_29 using prod_comparison.html, ///
+    style(html) replace                                              ///
+    title("Table 1: Comparison of Production Function Coefficients") ///
+    b(3) se(3) star(* 0.10 ** 0.05 *** 0.01)                         ///
+    order(ln_L ln_real_K)                                                ///
+    varlabels(ln_L "ln(labor)" ln_real_K "ln(capital)")                  ///
+    mtitles("Lev–Pet" "WRDG" "OLS"  "Lev–Pet" "WRDG" "OLS")         ///
+    stats(N, labels("N obs"))                                       ///
+    addnote("Bias_{OLS–LP} = β̂_{OLS,L} – β̂_{LP,L};  Bias_{OLS–WRDG} = β̂_{OLS,L} – β̂_{WRDG,L}") ///
+    compress
+export "$output/prod_comparison.html", replace
+
+
+*-- Collect β̂_L and β̂_K for each model into a matrix
+matrix Coefs = (  \ 
+  _b[LP_13,"ln_L"]   , _b[WRDG_13,"ln_L"]   , _b[OLS_13,"ln_L"]   , ///
+  _b[LP_29,"ln_L"]   , _b[WRDG_29,"ln_L"]   , _b[OLS_29,"ln_L"] \ 
+  _b[LP_13,"ln_K"]   , _b[WRDG_13,"ln_K"]   , _b[OLS_13,"ln_K"]   , ///
+  _b[LP_29,"ln_K"]   , _b[WRDG_29,"ln_K"]   , _b[OLS_29,"ln_K"]
+)
+
+*-- Collect sample sizes
+estimates restore LP_13; scalar N_LP13 = e(N)
+estimates restore WRDG_13; scalar N_WRDG13 = e(N)
+estimates restore OLS_13; scalar N_OLS13 = e(N)
+estimates restore LP_29; scalar N_LP29 = e(N)
+estimates restore WRDG_29; scalar N_WRDG29 = e(N)
+estimates restore OLS_29; scalar N_OLS29 = e(N)
+
+*-- Compute bias in labor coefficient per sector
+scalar bOLS13 = _b[OLS_13,"ln_L"]
+scalar bLP13  = _b[LP_13,"ln_L"]
+scalar bWRDG13= _b[WRDG_13,"ln_L"]
+scalar bias1_13 = bOLS13 - bLP13
+scalar bias2_13 = bOLS13 - bWRDG13
+scalar bias3_13 = bLP13  - bWRDG13
+
+scalar bOLS29 = _b[OLS_29,"ln_L"]
+scalar bLP29  = _b[LP_29,"ln_L"]
+scalar bWRDG29= _b[WRDG_29,"ln_L"]
+scalar bias1_29 = bOLS29 - bLP29
+scalar bias2_29 = bOLS29 - bWRDG29
+scalar bias3_29 = bLP29  - bWRDG29
+
+matrix Table = J(9,6,.)    // 9 rows, 6 columns
+
+* Fill coefficients:
+forvalues r = 1/6 {
+    matrix Table[ceil(`r'/2),`r'] = Coefs[(`r'),`r']  
+}
+* (rows 1–2 go into columns 1–6, the loop handles both ln_L and ln_K)
+
+* Fill N obs in row 7
+matrix Table[7,1] = N_LP13
+matrix Table[7,2] = N_WRDG13
+matrix Table[7,3] = N_OLS13
+matrix Table[7,4] = N_LP29
+matrix Table[7,5] = N_WRDG29
+matrix Table[7,6] = N_OLS29
+
+* Fill biases in row 8 & 9 (split per sector)
+matrix Table[8,1] = bias1_13    // OLS–LP, NACE-13
+matrix Table[8,2] = bias2_13    // OLS–WRDG, NACE-13
+matrix Table[8,3] = bias3_13    // LP–WRDG, NACE-13
+matrix Table[8,4] = bias1_29    // same but sector 29
+matrix Table[8,5] = bias2_29
+matrix Table[8,6] = bias3_29
+
+putexcel set ProdComp.xlsx, replace sheet("Table1")  
+
+* Top titles & merged headers
+putexcel A1 = "Table 1: Comparison of Production Function Coefficients" ///
+          bold border(bottom)
+
+* Sector headers (merge A2:C2 and D2:F2)
+putexcel A2 = "NACE-13"  merge(A2:C2) bold
+putexcel D2 = "NACE-29"  merge(D2:F2) bold
+
+* Method sub‐headers
+putexcel A3 = "Lev-Pet"     merge(A3:A4)
+putexcel B3 = "WRDG"        merge(B3:B4)
+putexcel C3 = "OLS"         merge(C3:C4)
+putexcel D3 = "Lev-Pet"     merge(D3:D4)
+putexcel E3 = "WRDG"        merge(E3:E4)
+putexcel F3 = "OLS"         merge(F3:F4)
+
+* Row labels
+putexcel A4 = "ln(labor)"
+putexcel A5 = "ln(capital)"   // adjust row numbers accordingly
+
+* Coefficient cells
+putexcel B4 = matrix(Table[1..6,1..6])  /// rows 4–9, cols A–F
+
+* N and Bias panels
+putexcel A10 = "N obs"  
+putexcel B10 = matrix(Table[7,1..6])
+putexcel A11 = "Bias (OLS–LP)"
+putexcel B11 = matrix(Table[8,1..6])
+
+* Save & open
+putexcel save
+
 
 	/* A: answer and comment */
 
@@ -435,19 +543,20 @@ tw (kdensity ln_TFP_LP if country=="France", lcolor(green)) || (kdensity ln_TFP_
 	
 /* (c) Focus now on the TFP distributions of industry 13 in France and Spain. Do you find changes in these two TFP distributions in 2006 vs 2015? Did you expect these results? Compare the results obtained with WRDG and LP procedure and comment. */
 
-* LP
-
 preserve 
 
 keep if sector == 13 & (year == 2006 | year == 2015) & (country == "France" | country == "Spain")
 
-tw (kdensity ln_TFP_LP if country=="France" & year == 2006, lcolor(blue)) || (kdensity ln_TFP_LP if country=="Spain" & year==2006, lcolor(red)) || (kdensity ln_TFP_LP if country=="France" & year == 2015, lcolor(green)) || (kdensity ln_TFP_LP if country=="Spain" & year == 2015, lcolor(sienna)) || (kdensity ln_TFP_WRDG if country=="France" & year == 2006, lcolor(blue) lp(dash)) || (kdensity ln_TFP_WRDG if country=="Spain" & year==2006, lcolor(red) lp(dash)) || (kdensity ln_TFP_WRDG if country=="France" & year == 2015, lcolor(green) lp(dash)) || (kdensity ln_TFP_WRDG if country=="Spain" & year == 2015, lcolor(sienna) lp(dash)), title("TFP (LP vs WRDG) Density: textile comparisons") legend(label(1 "France LP '06") label(2 "Spain LP '06") label(3 "France LP '15") label(4 "Spain LP '15") label(5 "France WRDG '06") label(6 "Spain WRDG '06") label(7 "France WRDG '15") label(8 "Spain WRDG '15")) 
+/* tw (kdensity ln_TFP_LP if country=="France" & year == 2006, lcolor(blue)) || (kdensity ln_TFP_LP if country=="Spain" & year==2006, lcolor(red)) || (kdensity ln_TFP_LP if country=="France" & year == 2015, lcolor(green)) || (kdensity ln_TFP_LP if country=="Spain" & year == 2015, lcolor(sienna)) || (kdensity ln_TFP_WRDG if country=="France" & year == 2006, lcolor(blue) lp(dash)) || (kdensity ln_TFP_WRDG if country=="Spain" & year==2006, lcolor(red) lp(dash)) || (kdensity ln_TFP_WRDG if country=="France" & year == 2015, lcolor(green) lp(dash)) || (kdensity ln_TFP_WRDG if country=="Spain" & year == 2015, lcolor(sienna) lp(dash)), title("TFP (LP vs WRDG) Density: textile comparisons") legend(label(1 "France LP '06") label(2 "Spain LP '06") label(3 "France LP '15") label(4 "Spain LP '15") label(5 "France WRDG '06") label(6 "Spain WRDG '06") label(7 "France WRDG '15") label(8 "Spain WRDG '15")) */
 
-twoway (kdensity TFP_LP if country=="France" & year == 2006, lcolor(green)) || (kdensity TFP_LP if country=="Spain" & year == 2006, lcolor(sienna)) ||, (kdensity TFP_LP if country=="France" & year == 2015, lcolor(blue)) || (kdensity TFP_LP if country=="France" & year == 2015, lcolor(red)) || title("TFP Density compared") legend(label(1 "France") label(2 "Spain")) 
+twoway (kdensity TFP_LP if country=="France" & year == 2006, lcolor(green)) || (kdensity TFP_LP if country=="Spain" & year == 2006, lcolor(sienna)) || (kdensity TFP_LP if country=="France" & year == 2015, lcolor(blue)) || (kdensity TFP_LP if country=="France" & year == 2015, lcolor(red)) || title("TFP-LP density: textile comparisons") legend(label(1 "France LP '06") label(2 "Spain LP '06") label(3 "France LP '15") label(4 "Spain LP '15")) 
 
-* Question - Do we simplify the graph like this for interpretation (perhaps doing both) ?
+|| (kdensity ln_TFP_WRDG if country=="France" & year == 2006, lcolor(blue) lp(dash)) || (kdensity ln_TFP_WRDG if country=="Spain" & year==2006, lcolor(red) lp(dash)) || (kdensity ln_TFP_WRDG if country=="France" & year == 2015, lcolor(green) lp(dash)) || (kdensity ln_TFP_WRDG if country=="Spain" & year == 2015, lcolor(sienna) lp(dash)), title("TFP-WRDG density: textile comparisons") legend(label(5 "France WRDG '06") label(6 "Spain WRDG '06") label(7 "France WRDG '15") label(8 "Spain WRDG '15")))
 
 restore
+
+* Q: Do we simplify the graph like this for interpretation (perhaps doing both) ?
+
 
 	/* A: answer and comment */
 	
@@ -457,6 +566,9 @@ restore
 	/* A: answer and comment */
 	
 /* (e) Do you find the shifts to be homogenous throughout the distribution? Once you have defined a specific parametrical distribution for the TFP, is there a way through which you can statistically measure the changes in the TFP distribution in each industry over time (2006 vs 2015)? */
+
+
+
 
 	/* A: answer and comment */
 
@@ -476,7 +588,8 @@ ssc install mif2dta, replace
 /* (a) Merge the first three datasets together. Compute the China shock for each region, in each year for which it is possible, according to the equation above. Use a lag of 5 years to compute the import deltas (i.e., growth in imports between t-6 and t-1). Repeat the same procedure with US imports, i.e., substituting ∆IM P Chinackt with ∆IM P ChinaU SAkt, following the identification strategy by Colantone and Stanig (AJPS, 2018). */
 
 	*—— i. Load pre-sample employment shares (first year only) ———————————————*
-use "/Users/stefanograziosi/Documents/GitHub/20269-eei-report/data/Employment_Shares_Take_Home.dta", clear //SOSTITUISCI CON "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Employment_Shares_Take_Home.dta"
+use "/Users/stefanograziosi/Documents/GitHub/20269-eei-report/data/Employment_Shares_Take_Home.dta", clear //SOSTITUISCI CON
+use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Employment_Shares_Take_Home.dta", clear
 
 sort year country nace
 
@@ -536,7 +649,7 @@ save "$output/ChinaShock_by_region_year_us.dta", replace
 
 /* (b) Collapse the dataset by region to obtain the average 5-year China shock over the sample period. This will be the average of all available years' shocks (for reference, see Colantone and Stanig, American Political Science Review, 2018). You should now have a dataset with cross-sectional data. */
 
-	*—— Collapse observation dataset ——————————————————————————————*
+	*—— Collapse observation dataset ——————————————————————————————* /* Are we sure of by(country nuts2 year)? */
 
 use "$output/ChinaShock_by_region_year.dta", clear
 collapse (mean) china_shock, by(country nuts2 year)
@@ -637,7 +750,7 @@ rename country_str country
 rename nuts_code nuts2
 keep nuts2 nace2_2_group year tfp avg_tfp avg_wage edu_lag3-pop_lag3 country
 
-merge m:1 nuts2 using "\$output\region_shocks_avg"
+merge m:1 nuts2 using "$output\region_shocks_avg.dta"
 drop _merge
 *NB: 96 not merged (nuts: ES63, ES64, FRA1-FRA4)
 
@@ -692,7 +805,9 @@ restore
 
 use "$output\ESS8_Italy_cleaned.dta", clear
 
-merge m:1 nuts2 using "$output/ChinaShock_by_region_year_collapsed_MAPS.dta", keep(match)
+merge m:1 nuts2 using "$output/ChinaShock_by_region_year_collapsed_MAPS.dta", keep(match)  /* Q: Is the correct dataset to use? */
+
+drop _merge
 
 save "$output\Q7ab.dta", replace
 
@@ -701,7 +816,7 @@ save "$output\Q7ab.dta", replace
 /* (b) Regress (simple OLS) the attitude score towards the allocation of public money to subsidize renewable energies on the region-level China shock previously constructed, controlling for gender, age, dummies for levels of education, and dummies for Nuts regions at the 1 digit level. Cluster the standard errors by Nuts region level 2. Be sure to use survey weights in the regression. Comment and discuss possible endogeneity issues.
 results. */
 
-gen nuts1 = substr(nuts2, 1, 3)
+gen nuts1 = substr(nuts2, 1, 3) /* encode num... */
 
 xi: reg sbsrnen china_shock gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2)
 
@@ -709,21 +824,19 @@ xi: reg sbsrnen china_shock gndr agea i.edlvdit i.nuts1 [pweight=pspwght], clust
 	
 /* (c) To correct for endogeneity issues, use the instrumental variable you have built before, based on changes in Chinese imports to the USA. Discuss the rationale for using this instrumental variable. What happens when you instrument the China shock in the previous regression? Comment both on first-stage and on second-stage results. */
 
-drop _merge
-
-merge m:1 nuts2 using "$output/ChinaShock_by_region_year_collapsed_us_MAPS.dta", keep(match)
+merge m:1 nuts2 using "$output/ChinaShock_by_region_year_collapsed_us_MAPS.dta", keep(match) // Q: Same
 
 xi: ivreg2 sbsrnen (china_shock = china_shock_us) ///
     gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2) first
+	
+/* Q: Is the value of the Kleibergen_Paap rk Wald F statistic reliable and similar to the one found by Colantone? */
 
 /* Traditional alternative - no F-statistic 1st stage due to small number of clusters... 
 
 xi: reg china_shock china_shock_us gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2)
 
 xi: ivregress 2sls sbsrnen (china_shock = china_shock_us) ///
-    gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2) 
-	
-	*/ 
+    gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2) */
 	
 drop _merge
 	
@@ -785,6 +898,23 @@ drop _merge
 	minority scorepc = log(.5 + zpc)
 
 	with z being the variable for the "very general favorable references to underprivileged minority groups". Cluster the standard errors by Nuts region level 2. Be sure to use survey weights in the regressions. Comment. */
+	
+gen z_pc = per705
+	
+	// first round everything to 2 decimal places
+replace z_pc = round(z_pc, 0.01)
+
+// then for the positive ones, round *again* to 3 decimals
+replace z_pc = round(z_pc, 0.001) if z_pc > 0
+
+drop per705
+	
+gen minority_score_pc = log(0.5 + z_pc)
+	
+xi: reg minority_score_pc china_shock gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2)
+
+xi: ivreg2 minority_score_pc (china_shock = china_shock_us) ///
+    gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2) first
 
 	/* A: answer and comment */
 	
