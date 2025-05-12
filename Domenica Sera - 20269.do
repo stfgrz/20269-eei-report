@@ -400,7 +400,9 @@ save "$output/ChinaShock_by_region_year_us.dta", replace
 
 * MERGE ALL THE DATASET HERE BEFORE COLLAPSING (Ste)
 
-/* (b) Collapse the dataset by region to obtain the average 5-year China shock over the sample period. This will be the average of all available years' shocks (for reference, see Colantone and Stanig, American Political Science Review, 2018). You should now have a dataset with cross-sectional data. */
+/* (b) Collapse the dataset by region to obtain the average 5-year China shock over the sample period. This will be the average of all available years' shocks (for reference, see Colantone and Stanig, American Political Science Review, 2018). You should now have a dataset with cross-sectional data. 
+
+COLLAPSING + NUTS_2 -- NUTS_ID in (5.c) */
 
 	*—— Collapse observation dataset ——————————————————————————————*
 
@@ -430,6 +432,8 @@ drop _merge
 gen ratio_IV_CS = sum_china_shock_us / sum_china_shock
 
 save "$output/sum_china_shock_merged", replace
+	
+* use "$output/sum_china_shock_merged", clear
 	
 /* (c) Produce a map visualizing the China shock for each region, i.e., with darker shades reflecting stronger shocks. Going back to the "Employment Shares Take Home.dta", do the same with respect to the overall pre-sample share of employment in the manufacturing sector. Do you notice any similarities between the two maps? What were your expectations? Comment. LINK TO TUTORIAL ON THE PDF */
 
@@ -496,6 +500,68 @@ spmap manuf_share using "nuts2_coords.dta", ///
 **# 							Problem 6 									
 *=============================================================================
 
+use "$data\EEI_TH_P6_2025.dta", clear
+
+use "$output/sum_china_shock_merged", clear
+rename NUTS_ID nuts2
+save "$output/sum_china_shock_merged", replace
+
+/* CHECK names nuts nutsid.... */
+
+* generate 2014-2017 averages for TFPs and wages
+gen tfp_temp = tfp if inrange(year, 2014, 2017)
+egen avg_tfp = mean(tfp_temp), by(nuts_code nace2_2_group)
+gen wage_temp = mean_uwage if inrange(year, 2014, 2017)
+egen avg_wage = mean(wage_temp), by(nuts_code nace2_2_group)
+
+* generate 3-yr lags for education, GDP and population
+egen panel_id = group(nuts_code nace2_2_group)
+xtset panel_id year
+
+gen edu_lag3 = L3.share_tert_educ
+*NB: Missing values to handle
+gen gdp_lag3 = L3.control_gdp
+gen pop_lag3 = L3.lnpop
+
+keep if year >= 2014 & year <= 2017
+
+decode cou, gen(country_str)
+replace country_str = "Spain" if country_str == "ES"
+replace country_str = "France" if country_str == "FR"
+replace country_str = "Italy" if country_str == "IT"
+rename country_str country
+
+rename nuts_code nuts2
+keep nuts2 nace2_2_group year tfp avg_tfp avg_wage edu_lag3-pop_lag3 country
+
+merge m:1 nuts2 using "$output/sum_china_shock_merged"
+drop _merge
+*NB: 96 not merged (nuts: ES63, ES64, FRA1-FRA4)
+
+*** point a
+
+* run OLS regression for average TFP
+reg avg_tfp sum_china_shock edu_lag3-pop_lag3
+
+*** point b
+
+* run IV regression for average TFP
+ivregress 2sls avg_tfp (china_shock = china_shock_us) edu_lag3-pop_lag3
+
+*** point c
+
+* run OLS and IV regressions for wage
+reg avg_wage china_shock edu_lag3-pop_lag3
+ivregress 2sls avg_wage (china_shock = china_shock_us) edu_lag3-pop_lag3
+
+* generate the interaction term
+gen inter_term = avg_tfp*china_shock
+
+* run OLS and IV regressions for wage with additional control and interaction
+reg avg_wage china_shock avg_tfp inter_term edu_lag3-pop_lag3
+ivregress 2sls avg_wage (china_shock = china_shock_us) avg_tfp inter_term edu_lag3-pop_lag3
+
+
 /* Use the dataset "EEI TH P6 2025.dta" to construct an average of TFP and wages during the post-crisis years (2014-2017). Create a lag of 3 years in the control variables (education, GDP and population). Now merge the data you have obtained with data on the China shock (region-specific average). */
 
 /* (a) Regress (simple OLS) the post-crisis average of TFP against the region-level China shock previously constructed, controlling for the 3-year lags of population, education and GDP. Comment on the estimated coefficient on the China shock, and discuss possible endogeneity issues. */
@@ -513,6 +579,144 @@ spmap manuf_share using "nuts2_coords.dta", ///
 *=============================================================================
 **# 							Problem 7 									
 *=============================================================================
+
+use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/blob/ddb4ad97f3974b2ba537498cbeea090d2b6ed3d1/data/ESS8e02_3.dta", clear
+
+/* (a) Merge the ESS dataset with data on the China shock (region-specific average), based on the region of residence of each respondent. */
+
+use "$data/ESS8e02_3", clear
+	
+preserve 
+
+	keep if cntry == "IT"
+	
+	keep gndr agea region edlvdit prtvtbit sbsrnen pspwght
+	
+	rename region NUTS_ID
+	
+	save "$output/ESS8_Italy_cleaned.dta", replace
+	
+restore
+
+use "$output\ESS8_Italy_cleaned.dta", clear
+
+merge m:1 NUTS_ID using "$output/collapsedimpshock.dta", keep(match)  /* Q: Is the correct dataset to use? */
+
+drop _merge
+
+save "$output\Q7ab.dta", replace
+
+	/* A: answer and comment */
+
+/* (b) Regress (simple OLS) the attitude score towards the allocation of public money to subsidize renewable energies on the region-level China shock previously constructed, controlling for gender, age, dummies for levels of education, and dummies for Nuts regions at the 1 digit level. Cluster the standard errors by Nuts region level 2. Be sure to use survey weights in the regression. Comment and discuss possible endogeneity issues.
+results. */
+
+gen nuts1 = substr(NUTS_ID, 1, 3) /* encode num... */
+
+xi: reg sbsrnen sum_china_shock gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(NUTS_ID)
+
+	/* A: answer and comment */
+	
+/* (c) To correct for endogeneity issues, use the instrumental variable you have built before, based on changes in Chinese imports to the USA. Discuss the rationale for using this instrumental variable. What happens when you instrument the China shock in the previous regression? Comment both on first-stage and on second-stage results. */
+
+merge m:1 nuts2 using "$output/ChinaShock_by_region_year_collapsed_us_MAPS.dta", keep(match) // Q: Same
+
+xi: ivreg2 sbsrnen (china_shock = china_shock_us) ///
+    gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2) first
+	
+/* Q: Is the value of the Kleibergen_Paap rk Wald F statistic reliable and similar to the one found by Colantone? */
+
+/* Traditional alternative - no F-statistic 1st stage due to small number of clusters... 
+
+xi: reg china_shock china_shock_us gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2)
+
+xi: ivregress 2sls sbsrnen (china_shock = china_shock_us) ///
+    gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2) */
+	
+drop _merge
+	
+save "$output/Q7cd.dta", replace
+
+	/* A: answer and comment */
+	
+/* (d) Comment on the sign of the coefficient on the China shock obtained at point c. Provide intuitive theoretical arguments to rationalize this finding. */
+
+	/* A: answer and comment */
+	
+/* (e) Starting from the augmented ESS dataset used in the previous regressions, attach to the variable "party voted in last national election" the score for the "very general favorable references to underprivileged minority groups" available in the Manifesto Project for the election of 2013. You can search in the codebook the code for this score in the dataset. Please note that party names do not necessarily match exactly, and that ESS may have more parties than coded by the Manifesto Project. In the end, you should be able to match 9 parties. */
+
+use "$data/MPDataset_MPDS2024a_stata14.dta", clear
+
+keep if countryname == "Italy" & coderyear == 2013
+
+keep party partyname per705
+rename party party_cmp
+rename partyname partyname_cmp
+
+save "$output/Q7ef.dta", replace
+
+// Step 1: Get the name of the value label attached to party_cmp
+local lblname : value label party_cmp
+
+// Step 2: Get unique party codes present in your dataset
+levelsof party_cmp, local(partycodes)
+
+// Step 3: Loop through each party code and show its label
+display "Matching party_cmp numeric codes and their labels:"
+foreach code of local partycodes {
+    local code_int = floor(`code')  // safely convert to integer
+    local partyname : label `lblname' `code_int'
+    display "`code_int' = `partyname'"
+}
+
+use "$output/Q7cd.dta", clear
+
+gen party_cmp = .
+replace party_cmp = 32440 if prtvtbit == 1  // PD
+replace party_cmp = 32061 if prtvtbit == 8  // PDL
+replace party_cmp = 32956 if prtvtbit == 4  // M5S
+replace party_cmp = 32720 if prtvtbit == 9  // Lega Nord
+replace party_cmp = 32230 if prtvtbit == 2  // SEL
+replace party_cmp = 32450 if prtvtbit == 6  // UDC
+replace party_cmp = 32460 if prtvtbit == 5  // Scelta Civica
+replace party_cmp = 32630 if prtvtbit == 10  // Fratelli d'Italia
+replace party_cmp = 32021 if prtvtbit == 3  // Rivoluzione Civile (Ingroia)
+
+merge m:1 party_cmp using "$output/Q7ef.dta", keep(match)
+
+drop _merge
+
+	/* A: answer and comment */
+	
+/* (f) Regress (both OLS and IV, as above) the underprivileged minority groups score of the party voted against the region-level China shock, controlling for gender, age, dummies for levels of education, and dummies for Nuts regions at the 1 digit level. For this purpose, transform the score as follows:
+
+	minority scorepc = log(.5 + zpc)
+
+	with z being the variable for the "very general favorable references to underprivileged minority groups". Cluster the standard errors by Nuts region level 2. Be sure to use survey weights in the regressions. Comment. */
+	
+gen z_pc = per705
+	
+	// first round everything to 2 decimal places
+replace z_pc = round(z_pc, 0.01)
+
+// then for the positive ones, round *again* to 3 decimals
+replace z_pc = round(z_pc, 0.001) if z_pc > 0
+
+drop per705
+	
+gen minority_score_pc = log(0.5 + z_pc)
+	
+xi: reg minority_score_pc china_shock gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2)
+
+xi: ivreg2 minority_score_pc (china_shock = china_shock_us) ///
+    gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2) first
+
+	/* A: answer and comment */
+	
+/* (g) What can we learn from the results at point f on the relation between economic and cultural determinants of the globalization backlash? */
+
+	/* A: answer and comment */
+
 
 https://github.com/stfgrz/20269-eei-report/blob/ddb4ad97f3974b2ba537498cbeea090d2b6ed3d1/data/ESS8e02_3.dta
 
