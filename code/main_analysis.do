@@ -1,9 +1,26 @@
 *============================================================================
-
-*					Economics of European Integration
-*							Final Report
-
-/* Group composition: Enrico Ancona, Simone Donoghue, Stefano Graziosi */
+*
+*                   Economics of European Integration
+*                          Final Report 2024/2025
+*
+*   Course:        20269 Economics of European Integration
+*   Institution:   Bocconi University
+*   Authors:       Enrico Ancona, Simone Donoghue, Stefano Graziosi
+*   Date:          February 2025
+*
+*   Description:   This is the main analysis file for the Economics of
+*                  European Integration final report. It contains analysis
+*                  covering 7 problems across 2 parts:
+*                  - Part 1: Production function estimation (OLS, WRDG, LP)
+*                  - Part 2: China shock analysis, IV regressions, ESS survey
+*
+*   File:          main_analysis.do (previously 20269_takehome.do)
+*   Repository:    https://github.com/stfgrz/20269-eei-report
+*
+*   Note:          This file has been refactored as part of repository
+*                  reorganization. All paths now use relative paths from
+*                  the repository root to ensure portability.
+*
 *============================================================================
 
 *=============================================================================
@@ -29,35 +46,44 @@ grstyle init
 grstyle set plain, horizontal
 */
 
+*=============================================================================
+/* 						Path Configuration 								*/
+*=============================================================================
+* Note: This file is now located in /code directory. Paths are set relative
+* to the repository root for portability across different systems.
+
 local user = c(username)
 
 if ("`user'" == "stefanograziosi") {
 	cd "/Users/stefanograziosi/Documents/GitHub/20269-eei-report"
     global filepath "/Users/stefanograziosi/Documents/GitHub/20269-eei-report"
-	global output "/Users/stefanograziosi/Documents/GitHub/20269-eei-report/output"
-	global data "/Users/stefanograziosi/Documents/GitHub/20269-eei-report/data"
+	global output "$filepath/output"
+	global data "$filepath/data"
 }
-
-if ("`user'" == "enricoancona") {
+else if ("`user'" == "enricoancona") {
 	cd "C:/Users/enricoancona/Documents/GitHub/20269-eei-report"
     global filepath "C:/Users/enricoancona/Documents/GitHub/20269-eei-report"
 	global output "$filepath/output"
 	global data "$filepath/data"
 }
-
-if ("`user'" == "simon") {
+else if ("`user'" == "simon") {
 	cd "C:/Users/simon/Documents/GitHub/20269-eei-report"
     global filepath "C:/Users/simon/Documents/GitHub/20269-eei-report"
 	global output "$filepath/output"
 	global data "$filepath/data"
 }
-
-* Fallback for unknown users - use current directory
-if ("`user'" != "stefanograziosi" & "`user'" != "enricoancona" & "`user'" != "simon") {
+else {
+	* Fallback for unknown users - use parent directory of code folder
+	cd ".."
     global filepath "."
 	global output "./output"
 	global data "./data"
 }
+
+* Define output subdirectories for organized file management
+global figures "$output/figures"
+global tables "$output/tables"
+global intermediate "$output/intermediate"
 
 *=============================================================================
 /*)))))))))))))))))))) 			PART 1 			((((((((((((((((((((((((((((*/
@@ -177,7 +203,7 @@ predict TFP_LP_29, omega
 
 	/* A: answer and comment */
 
-save "$output/input_Q4", replace
+save "$intermediate/input_Q4.dta", replace
 
 /* Results:
 
@@ -203,7 +229,7 @@ save "$output/input_Q4", replace
 /* (a) Comment on the presence of "extreme" values in both industries. Clear the TFP estimates from these extreme values (1st and 99th percentiles) and save a "cleaned sample". From now on, focus on this sample. Plot the kdensity of the TFP distribution and the kdensity of the logarithmic transformation of TFP in each industry. What do you notice? Are there any differences if you rely on the LP or WRDG procedure? Comment. */
 
 clear all 
-use "$output/input_Q4", replace
+use "$intermediate/input_Q4.dta", replace
 
 *** Clearing of extreme values
 
@@ -233,52 +259,52 @@ replace TFP_LP=TFP_LP_13 if sector==13
 replace TFP_LP=TFP_LP_29 if sector==29
 gen ln_TFP_LP=ln(TFP_LP)
 
-save "$output/part_I_cleaned_sample.dta", replace
+save "$intermediate/part_I_cleaned_sample.dta", replace
 
 
 ** Plotting of the densities
 
-use "$output/part_I_cleaned_sample.dta", clear
+use "$intermediate/part_I_cleaned_sample.dta", clear
 
 ** WRDG estimates
 
 tw (kdensity TFP_WRDG if sector==13, lcolor(sienna)) || (kdensity TFP_WRDG if sector==29, lcolor(black)), title("TFP Densities with WRDG") legend(label(1 "Textile") label(2 "Automotive"))
 
-graph save "$output/Q4a_WRDG.gph", replace
-graph export "$output/Q4a_WRDG.png", replace
+graph save "$figures/Q4a_WRDG.gph", replace
+graph export "$figures/Q4a_WRDG.png", replace
 
 tw (kdensity ln_TFP_WRDG if sector==13, lcolor(sienna)) || (kdensity ln_TFP_WRDG if sector==29, lcolor(black)), title("Log-TFP Densities with WRDG") legend(label(1 "Textile") label(2 "Automotive"))
 
-graph save "$output/Q4a_lnWRDG.gph", replace
-graph export "$output/Q4a_lnWRDG.png", replace
+graph save "$figures/Q4a_lnWRDG.gph", replace
+graph export "$figures/Q4a_lnWRDG.png", replace
 
 ** LP estimates
 
 tw (kdensity TFP_LP if sector==13, lcolor(sienna)) || (kdensity TFP_LP if sector==29, lcolor(black)), title("TFP Densities with LP") legend(label(1 "Textile") label(2 "Automotive"))
 
-graph save "$output/Q4a_LP.gph", replace
-graph export "$output/Q4a_LP.png", replace
+graph save "$figures/Q4a_LP.gph", replace
+graph export "$figures/Q4a_LP.png", replace
 
 tw (kdensity ln_TFP_LP if sector==13, lcolor(sienna)) || (kdensity ln_TFP_LP if sector==29, lcolor(black)), title("Log-TFP Densities with LP") legend(label(1 "Textile") label(2 "Automotive"))
 
-graph save "$output/Q4a_lnLP.gph", replace
-graph export "$output/Q4a_lnLP.png", replace
+graph save "$figures/Q4a_lnLP.gph", replace
+graph export "$figures/Q4a_lnLP.png", replace
 
 * comparison  WRDG vs LP
 
-graph combine "$output/Q4a_WRDG.gph" "$output/Q4a_LP.gph"
+graph combine "$figures/Q4a_WRDG.gph" "$figures/Q4a_LP.gph"
 
-graph export "$output/Q4a_comparison_LP_vs_WRDG.png", replace
+graph export "$figures/Q4a_comparison_LP_vs_WRDG.png", replace
 
-graph combine "$output/Q4a_lnWRDG.gph" "$output/Q4a_lnLP.gph"
+graph combine "$figures/Q4a_lnWRDG.gph" "$figures/Q4a_lnLP.gph"
 
-graph export "$output/Q4a_comparison_lnLP_vs_lnWRDG.png", replace
+graph export "$figures/Q4a_comparison_lnLP_vs_lnWRDG.png", replace
 
 
 /* (b) Plot the TFP distribution for each country. Are there any differences if you rely on the LP or WRDG procedure? Compare and comment. */
 
 clear all 
-use "$output/part_I_cleaned_sample.dta", replace
+use "$intermediate/part_I_cleaned_sample.dta", replace
 
 *** NB: from now on we only use non-log TFP distributions for comparing (more immediate)
 
@@ -289,20 +315,20 @@ keep if sector == 13
 
 tw (kdensity TFP_WRDG if country == "France", lcolor(blue)) || (kdensity TFP_WRDG if country == "Spain", lcolor(orange)) (kdensity TFP_WRDG if country == "Italy", lcolor(red)), title("TFP Densities in Textile (NACE-13) — WRDG") legend(label(1 "France") label(2 "Spain") label(3 "Italy"))
 
-graph save "$output/Q4b_WRDG_13.gph", replace
-graph export "$output/Q4b_WRDG_13.png", replace
+graph save "$figures/Q4b_WRDG_13.gph", replace
+graph export "$figures/Q4b_WRDG_13.png", replace
 
 * LP estimates for Textile
 
 tw (kdensity TFP_LP if country == "France", lcolor(blue)) || (kdensity TFP_LP if country == "Spain", lcolor(orange)) (kdensity TFP_LP if country == "Italy", lcolor(red)), title("TFP Densities in Textile (NACE-13) — LP") legend(label(1 "France") label(2 "Spain") label(3 "Italy"))
 
-graph save "$output/Q4b_LP_13.gph", replace
-graph export "$output/Q4b_LP_13.png", replace
+graph save "$figures/Q4b_LP_13.gph", replace
+graph export "$figures/Q4b_LP_13.png", replace
 
 * comparison WRDG vs LP for Textile
 
-graph combine "$output/Q4b_WRDG_13.gph" "$output/Q4b_LP_13.gph"
-graph export "$output/Q4b_comparison_LP_vs_WRDG_13.png", replace
+graph combine "$figures/Q4b_WRDG_13.gph" "$figures/Q4b_LP_13.gph"
+graph export "$figures/Q4b_comparison_LP_vs_WRDG_13.png", replace
 
 restore
 
@@ -313,27 +339,27 @@ keep if sector == 29
 
 tw (kdensity TFP_WRDG if country == "France", lcolor(blue)) || (kdensity TFP_WRDG if country == "Spain", lcolor(orange)) (kdensity TFP_WRDG if country == "Italy", lcolor(red)), title("TFP Densities in Automotive (NACE-29) — WRDG") legend(label(1 "France") label(2 "Spain") label(3 "Italy"))
 
-graph save "$output/Q4b_WRDG_29.gph", replace
-graph export "$output/Q4b_WRDG_29.png", replace
+graph save "$figures/Q4b_WRDG_29.gph", replace
+graph export "$figures/Q4b_WRDG_29.png", replace
 
 * LP estimates for Automotive
 
 tw (kdensity TFP_LP if country == "France", lcolor(blue)) || (kdensity TFP_LP if country == "Spain", lcolor(orange)) (kdensity TFP_LP if country == "Italy", lcolor(red)), title("TFP Densities in Automotive (NACE-29) — LP") legend(label(1 "France") label(2 "Spain") label(3 "Italy"))
 
-graph save "$output/Q4b_LP_29.gph", replace
-graph export "$output/Q4b_LP_29.png", replace
+graph save "$figures/Q4b_LP_29.gph", replace
+graph export "$figures/Q4b_LP_29.png", replace
 
 * comparison WRDG vs LP
 
-graph combine "$output/Q4b_WRDG_29.gph" "$output/Q4b_LP_29.gph"
-graph export "$output/Q4b_comparison_LP_vs_WRDG_29.png", replace
+graph combine "$figures/Q4b_WRDG_29.gph" "$figures/Q4b_LP_29.gph"
+graph export "$figures/Q4b_comparison_LP_vs_WRDG_29.png", replace
 
 restore
 	
 /* (c) Focus now on the TFP distributions of industry 13 in France and Spain. Do you find changes in these two TFP distributions in 2006 vs 2015? Did you expect these results? Compare the results obtained with WRDG and LP procedure and comment. */
 
 clear all 
-use "$output/part_I_cleaned_sample.dta", replace
+use "$intermediate/part_I_cleaned_sample.dta", replace
 
 * WRDG estimates
 
@@ -343,16 +369,16 @@ keep if sector == 13
 
 tw (kdensity TFP_WRDG if country == "France" & year == 2006, lcolor(blue)) || (kdensity TFP_WRDG if country == "France" & year == 2015, lcolor(orange)), title("TFP in France with WRDG") legend(label(1 "2006") label(2 "2015"))
 
-graph save "$output/Q4c_WRDG_France.gph", replace
-graph export "$output/Q4c_WRDG_France.png", replace
+graph save "$figures/Q4c_WRDG_France.gph", replace
+graph export "$figures/Q4c_WRDG_France.png", replace
 
 tw (kdensity TFP_WRDG if country == "Spain" & year == 2006, lcolor(blue)) || (kdensity TFP_WRDG if country == "Spain" & year == 2015, lcolor(orange)), title("TFP in Spain with WRDG") legend(label(1 "2006") label(2 "2015"))
 
-graph save "$output/Q4c_WRDG_Spain.gph", replace
-graph export "$output/Q4c_WRDG_Spain.png", replace
+graph save "$figures/Q4c_WRDG_Spain.gph", replace
+graph export "$figures/Q4c_WRDG_Spain.png", replace
 
-graph combine "$output/Q4c_WRDG_France.gph" "$output/Q4c_WRDG_Spain.gph"
-graph export "$output/Q4c_comparison_FR_vs_SP_WRDG.png", replace
+graph combine "$figures/Q4c_WRDG_France.gph" "$figures/Q4c_WRDG_Spain.gph"
+graph export "$figures/Q4c_comparison_FR_vs_SP_WRDG.png", replace
 
 restore
 
@@ -364,16 +390,16 @@ keep if sector == 13
 
 tw (kdensity TFP_LP if country == "France" & year == 2006, lcolor(blue)) || (kdensity TFP_LP if country == "France" & year == 2015, lcolor(orange)), title("TFP in France with LP") legend(label(1 "2006") label(2 "2015"))
 
-graph save "$output/Q4c_LP_France.gph", replace
-graph export "$output/Q4c_LP_France.png", replace
+graph save "$figures/Q4c_LP_France.gph", replace
+graph export "$figures/Q4c_LP_France.png", replace
 
 tw (kdensity TFP_LP if country == "Spain" & year == 2006, lcolor(blue)) || (kdensity TFP_LP if country == "Spain" & year == 2015, lcolor(orange)), title("TFP in Spain with LP") legend(label(1 "2006") label(2 "2015"))
 
-graph save "$output/Q4c_LP_Spain.gph", replace
-graph export "$output/Q4c_LP_Spain.png", replace
+graph save "$figures/Q4c_LP_Spain.gph", replace
+graph export "$figures/Q4c_LP_Spain.png", replace
 
-graph combine "$output/Q4c_LP_France.gph" "$output/Q4c_LP_Spain.gph"
-graph export "$output/Q4c_comparison_FR_vs_SP_LP.png", replace
+graph combine "$figures/Q4c_LP_France.gph" "$figures/Q4c_LP_Spain.gph"
+graph export "$figures/Q4c_comparison_FR_vs_SP_LP.png", replace
 
 restore
 	
@@ -406,7 +432,7 @@ restore
 *** visually we can see bumps
 
 clear all 
-use "$output/part_I_cleaned_sample.dta", replace
+use "$intermediate/part_I_cleaned_sample.dta", replace
 
 sort sector year
 by sector year: cumul TFP_LP, generate(cum_TFP_LP)
@@ -419,11 +445,11 @@ preserve
 keep if country == "France"
 
 qui reg rhs_LP ln_TFP_LP if sector== 13
-outreg2 using "$output/Pareto_France.tex", append title("Pareto Distribution (France)") ctitle("Average `s'")
+outreg2 using "$tables/Pareto_France.tex", append title("Pareto Distribution (France)") ctitle("Average `s'")
 qui reg rhs_LP ln_TFP_LP if sector== 13 & year==2006
-outreg2 using "$output/Pareto_France.tex", append title("Pareto Distribution (France)") ctitle("2006")
+outreg2 using "$tables/Pareto_France.tex", append title("Pareto Distribution (France)") ctitle("2006")
 qui reg rhs_LP ln_TFP_LP if sector==13 & year==2015
-outreg2 using "$output/Pareto_France.tex", append title("Pareto Distribution (France)") ctitle("2015")
+outreg2 using "$tables/Pareto_France.tex", append title("Pareto Distribution (France)") ctitle("2015")
 
 restore
 
@@ -432,11 +458,11 @@ preserve
 keep if country == "Spain"
 
 qui reg rhs_LP ln_TFP_LP if sector==13
-outreg2 using "$output/Pareto_Spain.tex", append title("Pareto Distribution (Spain)") ctitle("Average")
+outreg2 using "$tables/Pareto_Spain.tex", append title("Pareto Distribution (Spain)") ctitle("Average")
 qui reg rhs_LP ln_TFP_LP if sector==13 & year==2006
-outreg2 using "$output/Pareto_Spain.tex", append title("Pareto Distribution (Spain)") ctitle("2006")
+outreg2 using "$tables/Pareto_Spain.tex", append title("Pareto Distribution (Spain)") ctitle("2006")
 qui reg rhs_LP ln_TFP_LP if sector==13 & year==2015
-outreg2 using "$output/Pareto_Spain.tex", append title("Pareto Distribution (Spain)") ctitle("2015")
+outreg2 using "$tables/Pareto_Spain.tex", append title("Pareto Distribution (Spain)") ctitle("2015")
 
 restore
 
@@ -467,14 +493,14 @@ sort country nuts2 nace year
 
 gen ratio_left = empl / tot_empl_nuts2
 
-save "$output/weights_pre.dta", replace
+save "$intermediate/weights_pre.dta", replace
 
 	*—— ii. China imports delta ——————————————————————————————————————————————*
 use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Imports_China_Take_Home.dta", clear
 
 sort year country nace
 
-merge 1:m year country nace using "$output/weights_pre.dta"
+merge 1:m year country nace using "$intermediate/weights_pre.dta"
 
 egen panel_id = group(country nace nuts2)
 xtset panel_id year
@@ -487,7 +513,7 @@ gen china_shock 		= ratio_left * ratio_right								// Individual element of the
 
 bysort country nuts2 year: egen sum_china_shock = total(china_shock)			// Summation of the individual china shocks
 
-save "$output/ChinaShock_by_region_year.dta", replace
+save "$intermediate/ChinaShock_by_region_year.dta", replace
 
 	*—— iii. US imports delta (instrument) ————————————————————————————————————*
 use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Imports_US_China_Take_Home.dta", clear
@@ -496,7 +522,7 @@ gen country = "USA"
 
 sort year country nace
 
-merge 1:m year nace using "$output/weights_pre.dta"
+merge 1:m year nace using "$intermediate/weights_pre.dta"
 
 egen panel_id_us = group (nace nuts2)
 xtset panel_id_us year
@@ -511,60 +537,60 @@ drop if missing(china_shock_us)
 
 bysort nuts2 year: egen sum_china_shock_us = total(china_shock_us)
 
-save "$output/ChinaShock_by_region_year_us.dta", replace
+save "$intermediate/ChinaShock_by_region_year_us.dta", replace
 
 /* (b) Collapse the dataset by region to obtain the average 5-year China shock over the sample period. This will be the average of all available years' shocks (for reference, see Colantone and Stanig, American Political Science Review, 2018). You should now have a dataset with cross-sectional data. */
 
 	*—— Collapse observation dataset ——————————————————————————————*
 
-use "$output/ChinaShock_by_region_year.dta", clear
+use "$intermediate/ChinaShock_by_region_year.dta", clear
 collapse (mean) sum_china_shock, by(nuts2 nuts2_name)
 rename nuts2        	NUTS_ID
 rename nuts2_name   	NAME_LATN
-save "$output/collapsedimpshock.dta", replace
+save "$intermediate/collapsedimpshock.dta", replace
  
 	*—— Collapse instrument dataset ——————————————————————————————*
 
-use "$output/ChinaShock_by_region_year_us.dta", clear
+use "$intermediate/ChinaShock_by_region_year_us.dta", clear
 collapse (mean) sum_china_shock_us, by(nuts2 nuts2_name)
 rename nuts2        	NUTS_ID
 rename nuts2_name   	NAME_LATN
-save "$output/collapsedimpshock_us.dta", replace
+save "$intermediate/collapsedimpshock_us.dta", replace
 
 /*NOTA BENE: il secondo dataset americano contiene osservazioni per 1989 - 2006, quello europeo invece 1988 - 2007. Vogliamo fare trimming del primo e ultimo anno prima di fare merge o lasciamo così ed elaboriamo in seguito? Dato che la cartina va fatta con il dataset europeo penso sia melgio avere più dati */
 
 	*—— Merge the two dataset ——————————————————————————————*
 
-use "$output/collapsedimpshock.dta", clear
+use "$intermediate/collapsedimpshock.dta", clear
 
-merge 1:1 NUTS_ID using "$output/collapsedimpshock_us.dta"
+merge 1:1 NUTS_ID using "$intermediate/collapsedimpshock_us.dta"
 drop _merge
 
-save "$output/sum_china_shock_merged", replace
+save "$intermediate/sum_china_shock_merged.dta", replace
 	
 /* (c) Produce a map visualizing the China shock for each region, i.e., with darker shades reflecting stronger shocks. Going back to the "Employment Shares Take Home.dta", do the same with respect to the overall pre-sample share of employment in the manufacturing sector. Do you notice any similarities between the two maps? What were your expectations? Comment. LINK TO TUTORIAL ON THE PDF */
 
 
 	*—— Convert & merge NUTS-2 shapefile ————————————————————————————————————*
-shp2dta using "$data/NUTS_RG_20M_2013_3035.shp", database("$output/nuts2_db.dta") coordinates("$output/nuts2_coords.dta") genid(uid) replace
+shp2dta using "$data/NUTS_RG_20M_2013_3035.shp", database("$intermediate/nuts2_db.dta") coordinates("$intermediate/nuts2_coords.dta") genid(uid) replace
 
 	*—— Load & merge region-cross-section shocks ——————————————————————————————*
-use "$output/nuts2_db.dta", clear
+use "$intermediate/nuts2_db.dta", clear
 describe
 
-merge 1:1 NUTS_ID using "$output/sum_china_shock_merged.dta"
+merge 1:1 NUTS_ID using "$intermediate/sum_china_shock_merged.dta"
 drop if _merge==1
 drop _merge
 
 	*—— Map average China shock ——————————————————————————————————————*
-spmap sum_china_shock using "$output/nuts2_coords.dta", id(uid) 						///
+spmap sum_china_shock using "$intermediate/nuts2_coords.dta", id(uid) 						///
     fcolor(Blues) clmethod(kmeans) clnumber(8) ocolor(none) 					///
     title("Avg. 5-Year China Shock by NUTS-2 Region") 							///
     note("Source: own elaboration based on Colantone and Stanig (AJPS, 2018)", size(2.5)) ///
 	subtitle("1988 to 2007 sample; quantile shading", size(4))					///
-	saving("$output/map_sum_china_shock.gph", replace)
+	saving("$figures/map_sum_china_shock.gph", replace)
 
-graph export "$output/map_sum_china_shock.pdf", as(pdf) replace
+graph export "$figures/map_sum_china_shock.pdf", as(pdf) replace
 	
 kdensity sum_china_shock
 
@@ -579,17 +605,17 @@ gen manuf_share = empl / tot_empl_nuts2
 
 rename nuts2 NUTS_ID
 
-save "$output/manuf_share.dta", replace
+save "$intermediate/manuf_share.dta", replace
 
-use "$output/nuts2_db.dta", clear
+use "$intermediate/nuts2_db.dta", clear
 describe
 
-merge 1:1 NUTS_ID using "$output/manuf_share.dta"
+merge 1:1 NUTS_ID using "$intermediate/manuf_share.dta"
 keep if _merge==3
 drop _merge
 
 
-spmap manuf_share using "$output/nuts2_coords.dta", ///
+spmap manuf_share using "$intermediate/nuts2_coords.dta", ///
     id(uid) ///
     fcolor(Greens)  ///
     clmethod(kmeans) ///
@@ -598,13 +624,13 @@ spmap manuf_share using "$output/nuts2_coords.dta", ///
     title("Pre-sample Manufacturing Share by NUTS-2 Region") ///
     subtitle("Year 1988; k-means classes") ///
     note("Source: own elaboration", size(2.5)) ///
-	saving("$output/map_manuf_share.gph", replace)
+	saving("$figures/map_manuf_share.gph", replace)
 
-graph export "$output/map_manuf_share.pdf", as(pdf) replace
+graph export "$figures/map_manuf_share.pdf", as(pdf) replace
 
 	*—— Recap table ——————————————————————*
 
-use "$output/sum_china_shock_merged.dta", clear
+use "$intermediate/sum_china_shock_merged.dta", clear
 
 cap which estout
 if _rc ssc install estout, replace
@@ -613,7 +639,7 @@ if _rc ssc install estout, replace
 estpost summarize sum_china_shock, detail
 
 // 3. Export with custom stat–labels
-estout using "$output/Table1_DescStats.tex", ///
+estout using "$tables/Table1_DescStats.tex", ///
     cells("count(fmt0) mean(fmt3) sd(fmt3) p25(fmt3) p50(fmt3) p75(fmt3) min(fmt3) max(fmt3)") ///
     varlabels(sum_china_shock "Average 5-Year China Shock") ///
     statslabels("N" "Mean" "Std. Dev." "25th pct." "Median" "75th pct." "Min" "Max") ///
@@ -625,9 +651,9 @@ estout using "$output/Table1_DescStats.tex", ///
 **# 							Problem 6 									
 *=============================================================================
 
-use "$output/sum_china_shock_merged", clear
+use "$intermediate/sum_china_shock_merged.dta", clear
 rename NUTS_ID nuts2
-save "$output/sum_china_shock_merged", replace
+save "$intermediate/sum_china_shock_merged.dta", replace
 
 
 /* Use the dataset "EEI TH P6 2025.dta" to construct an average of TFP and wages during the post-crisis years (2014-2017). Create a lag of 3 years in the control variables (education, GDP and population). Now merge the data you have obtained with data on the China shock (region-specific average). */
@@ -660,7 +686,7 @@ rename country_str country
 rename nuts_code nuts2
 keep nuts2 nace2_2_group year tfp avg_tfp avg_wage edu_lag3-pop_lag3 country
 
-merge m:1 nuts2 using "$output/sum_china_shock_merged"
+merge m:1 nuts2 using "$intermediate/sum_china_shock_merged.dta"
 format nuts2 %-10s
 drop if _merge==1
 drop _merge
@@ -673,7 +699,7 @@ label variable edu_lag3 "Education (lagged)"
 label variable gdp_lag3 "GDP (lagged)"
 label variable pop_lag3 "Population (lagged)"
 
-save "$output/Q6.dta", replace
+save "$intermediate/Q6.dta", replace
 
 *NB: 96 not merged and deleted (nuts: ES63, ES64, FRA1-FRA4)
 
@@ -681,7 +707,7 @@ save "$output/Q6.dta", replace
 
 * run OLS regression for average TFP
 
-use "$output/Q6.dta", clear
+use "$intermediate/Q6.dta", clear
 gen dummy = 1
 gen y = runiform()
 reg y if dummy == 1 // blank model
@@ -747,7 +773,7 @@ scalar list ratio_IV
 
 * panel A
 	estout OLS_tfp IV_tfp ///
-	using "$output/EEI_Take_Home_VI_bb.tex", replace style(tex) ///
+ using "$tables/EEI_Take_Home_VI_bb.tex", replace style(tex) ///
 	keep(sum_china_shock) label cells(b(star fmt(3)) se(par fmt(3))) starlevels(* 0.10 ** 0.05 *** 0.01) ///
 	mlabels(, none) collabels(, none) eqlabels(, none) ///
 	stats(N R2 R2_a F_ols, fmt(a3 3) labels("Observations" "R^2" "Adjusted-R^2" "F-statistic")) ///
@@ -763,7 +789,7 @@ scalar list ratio_IV
 	 
 * panel B
 	estout m1 First_Stage_tfp ///
-	using "$output/EEI_Take_Home_VI_bb.tex", append style(tex) ///
+ using "$tables/EEI_Take_Home_VI_bb.tex", append style(tex) ///
 	posthead("\noalign{\smallskip} \hline \noalign{\smallskip}" "\multicolumn{3}{l}{\emph{Panel B: First Stage China Shock on China Shock US}} \\" "\noalign{\smallskip} \noalign{\smallskip}" ) ///
 	keep(sum_china_shock_us) label cells(b(star fmt(3)) se(par fmt(3))) starlevels(* 0.10 ** 0.05 *** 0.01) ///
 	mlabels(, none) collabels(, none) eqlabels(, none) ///
@@ -895,7 +921,7 @@ label var sum_china_shock "China Shock"
 	
 * panel A
 	estout OLS_wage IV_wage OLS_wage_int IV_wage_int ///
-	using "$output/EEI_Take_Home_VI_cc3.tex", replace style(tex) ///
+ using "$tables/EEI_Take_Home_VI_cc3.tex", replace style(tex) ///
 	keep(sum_china_shock avg_tfp inter_term) label cells(b(star fmt(3)) se(par fmt(3))) starlevels(* 0.10 ** 0.05 *** 0.01) ///
 	mlabels(, none) collabels(, none) eqlabels(, none) ///
 	stats(N R2 R2_a F_ols, fmt(a3 3) labels("Observations" "R^2" "Adjusted-R^2" "F-statistic")) ///
@@ -914,7 +940,7 @@ label var sum_china_shock "China Shock"
 
 * panel B
 estout m1 First_Stage_wage m3 First_Stage_wage_int ///
-	using "$output/EEI_Take_Home_VI_cc3.tex", append style(tex) ///
+ using "$tables/EEI_Take_Home_VI_cc3.tex", append style(tex) ///
 	posthead("\noalign{\smallskip} \hline \noalign{\smallskip}" ///
 	"\multicolumn{5}{l}{\emph{Panel B: First Stage China Shock on China Shock US}} \\" ///
 	"\noalign{\smallskip} \noalign{\smallskip}" ) ///
@@ -944,13 +970,13 @@ use "$data/ESS8e02_3", clear
 	
 	rename region nuts2
 	
-	save "$output/ESS8_Italy_cleaned.dta", replace
+	save "$intermediate/ESS8_Italy_cleaned.dta", replace
 
-merge m:1 nuts2 using "$output/sum_china_shock_merged.dta", keep(match)
+merge m:1 nuts2 using "$intermediate/sum_china_shock_merged.dta", keep(match)
 
 	drop _merge
 
-save "$output/Q7ab.dta", replace
+save "$intermediate/Q7ab.dta", replace
 	
 sort nuts2
 	
@@ -972,7 +998,7 @@ estadd scalar F_ols
 	
 /* (c) To correct for endogeneity issues, use the instrumental variable you have built before, based on changes in Chinese imports to the USA. Discuss the rationale for using this instrumental variable. What happens when you instrument the China shock in the previous regression? Comment both on first-stage and on second-stage results. */
 
-merge m:1 nuts2 using "$output/sum_china_shock_merged", keep(match)
+merge m:1 nuts2 using "$intermediate/sum_china_shock_merged.dta", keep(match)
 
 drop _merge
 	
@@ -1009,7 +1035,7 @@ label var sum_china_shock_us "China Shock Instrument (China-USA)"
 * Exporting results to LaTeX:
 
 * panel A 
-estout OLS_attitude IV_attitude using "$output/EEI_Take_Home_VIIc.tex", replace style(tex) ///
+estout using "$tables/EEI_Take_Home_VIIc.tex", replace style(tex) ///
 keep(sum_china_shock) label cells(b(star fmt(3)) se(par fmt(3))) starlevels(* 0.10 ** 0.05 *** 0.01) ///
  mlabels(, none) collabels(, none) eqlabels(, none) stats(N effect_IV_sd_attitude std_IV_Effect_attitude R2, fmt(a3 3) labels("Observations" "1-sd IV effect on attitude score" "Standardized IV effect on attitude score" "R^2")) ///
 prehead("\begin{table}[H]" "\centering" "\begin{tabular}{lcc}" "\noalign{\smallskip} \hline \hline \noalign{\smallskip}" "& \multicolumn{1}{c} {(1)} & \multicolumn{1}{c} {(2)} \\" "& \multicolumn{1}{c} {(OLS)} & \multicolumn{1}{c} {(2SLS)} \\" "\noalign{\smallskip} \hline  \noalign{\smallskip}" "\multicolumn{3}{l}{\emph{Panel A: Impact China Shock on Attitude Score towards Public Green Subsidies}} \\")  ///
@@ -1019,13 +1045,13 @@ prefoot("\noalign{\smallskip}" "Controls & \checkmark & \checkmark  \\" ///
 	"Education FE & \checkmark & \checkmark \\ " )	 
 
 * panel B
-estout First_Stage_IV_attitude using "$output/EEI_Take_Home_VIIc.tex", append style(tex) ///
+estout using "$tables/EEI_Take_Home_VIIc.tex", append style(tex) ///
 posthead("\noalign{\smallskip} \hline \noalign{\smallskip}" "\multicolumn{3}{l}{\emph{Panel B: First stage China Shock on China Shock US}} \\" "\noalign{\smallskip} \noalign{\smallskip}") ///
 keep(sum_china_shock_us) label cells(b(star fmt(3)) se(par fmt(3))) starlevels(* 0.10 ** 0.05 *** 0.01) mlabels(, none) collabels(, none) eqlabels(, none) stats(F_1st, fmt(a3 3) labels("Kleibergen-Paap F-statistic")) ///
 postfoot("\hline \noalign{\smallskip}" "\multicolumn{3}{l}{\footnotesize{Standard errors in parentheses *** p$<$0.01, ** p$<$0.05, * p$<$0.1}} \\" "\end{tabular}" "\caption{Effect of China Shock on Public Support for Renewable Energy Subsidies}" "\label{tab:results}" "\end{table}")
 
 
-save "$output/Q7cd.dta", replace
+save "$intermediate/Q7cd.dta", replace
 
 	/* A: answer and comment */
 	
@@ -1045,7 +1071,7 @@ keep party partyname per705
 rename party party_cmp
 rename partyname partyname_cmp
 
-save "$output/MP_cleaned.dta", replace
+save "$intermediate/MP_cleaned.dta", replace
 
 // Step 1: Get the name of the value label attached to party_cmp
 local lblname : value label party_cmp
@@ -1061,7 +1087,7 @@ foreach code of local partycodes {
     display "`code_int' = `partyname'"
 }
 
-use "$output/Q7cd.dta", clear
+use "$intermediate/Q7cd.dta", clear
 
 gen party_cmp = .
 replace party_cmp = 32440 if prtvtbit == 1  // PD
@@ -1074,11 +1100,11 @@ replace party_cmp = 32460 if prtvtbit == 5  // Scelta Civica
 replace party_cmp = 32630 if prtvtbit == 10  // Fratelli d'Italia
 replace party_cmp = 32021 if prtvtbit == 3  // Rivoluzione Civile (Ingroia)
 
-merge m:1 party_cmp using "$output/MP_cleaned.dta", keep(match)
+merge m:1 party_cmp using "$intermediate/MP_cleaned.dta", keep(match)
 
 drop _merge
 
-save "$output/Q7ef.dta", replace
+save "$intermediate/Q7ef.dta", replace
 
 	/* A: answer and comment */
 	
@@ -1090,7 +1116,7 @@ save "$output/Q7ef.dta", replace
 
 	with z being the variable for the "very general favorable references to underprivileged minority groups". Cluster the standard errors by Nuts region level 2. Be sure to use survey weights in the regressions. Comment. */
 	
-use "$output/Q7ef.dta", replace
+use "$intermediate/Q7ef.dta", replace
 
 gen z_pc = per705
 	
@@ -1143,7 +1169,7 @@ label var sum_china_shock_us "China Shock Instrument (China-USA)"
 * Exporting results to LaTeX:
 	
 * panel A 
-estout OLS_minority IV_minority using "$output/EEI_Take_Home_VIIf.tex", replace style(tex) ///
+estout using "$tables/EEI_Take_Home_VIIf.tex", replace style(tex) ///
 keep(sum_china_shock) label cells(b(star fmt(3)) se(par fmt(3))) starlevels(* 0.10 ** 0.05 *** 0.01) ///
  mlabels(, none) collabels(, none) eqlabels(, none) stats(N effect_IV_sd_minority std_IV_effect_minority R2, fmt(a3 3) labels("Observations" "1-sd IV effect on attitude score" "Standardized IV effect on attitude score" "R$^2$")) ///
 prehead("\begin{table}[H]" "\centering" "\begin{tabular}{lcc}" "\noalign{\smallskip} \hline \hline \noalign{\smallskip}" "& \multicolumn{1}{c} {(1)} & \multicolumn{1}{c} {(2)} \\" "& \multicolumn{1}{c} {(OLS)} & \multicolumn{1}{c} {(2SLS)} \\" "\noalign{\smallskip} \hline  \noalign{\smallskip}" "\multicolumn{3}{l}{\emph{Panel A: Impact of China Score on Underprivileged Minority Groups Score}} \\")  ///
@@ -1153,7 +1179,7 @@ prefoot("\noalign{\smallskip}" "Controls & \checkmark & \checkmark  \\" ///
 	"Education FE & \checkmark & \checkmark \\ " )		 
 
 * panel B
-estout First_Stage_IV_minority using "$output/EEI_Take_Home_VIIf.tex", append style(tex) ///
+estout using "$tables/EEI_Take_Home_VIIf.tex", append style(tex) ///
 posthead("\noalign{\smallskip} \hline \noalign{\smallskip}" "\multicolumn{3}{l}{\emph{Panel B: First stage China Shock on China Shock US}} \\" "\noalign{\smallskip} \noalign{\smallskip}") ///
 keep(sum_china_shock_us) label cells(b(star fmt(3)) se(par fmt(3))) starlevels(* 0.10 ** 0.05 *** 0.01) mlabels(, none) collabels(, none) eqlabels(, none) stats(F_1st, fmt(a3 3) labels("Kleibergen-Paap F-statistic")) ///
 prefoot("\noalign{\smallskip}" "Controls &  & \checkmark  \\ ")	 ///

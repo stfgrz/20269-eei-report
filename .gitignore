@@ -1,4 +1,31 @@
+# Stata temporary files
 ~20269_takehome.do.stswp
-.DS_Store
 *.stswp
+*.log
+*.smcl
+
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.out
+*.toc
+
+# OS files
 .DS_Store
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Editor files
+*.swp
+*~
+.vscode/
+.idea/
+
+# Backup files
+*.backup
+*.bak
