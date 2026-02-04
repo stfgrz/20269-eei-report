@@ -199,7 +199,7 @@ predict TFP_LP_13, omega
 
 ** sector 29 (Automotive)
 
-xi: levpet ln_real_VA if sector==29, free(ln_L i.country i.year) proxy(ln_real_M) capital(ln_real_K) reps(20) level(99)
+xi: levpet ln_real_VA if sector==29, free(ln_L i.country i.year) proxy(ln_real_M) capital(ln_real_K) reps(20) level(99) va
 predict TFP_LP_29, omega
 
 	/* A: answer and comment */
