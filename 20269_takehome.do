@@ -39,11 +39,24 @@ if ("`user'" == "stefanograziosi") {
 }
 
 if ("`user'" == "enricoancona") {
-    global filepath "CAMBIA"
+	cd "C:/Users/enricoancona/Documents/GitHub/20269-eei-report"
+    global filepath "C:/Users/enricoancona/Documents/GitHub/20269-eei-report"
+	global output "$filepath/output"
+	global data "$filepath/data"
 }
 
 if ("`user'" == "simon") {
-    global filepath "CHANGE"
+	cd "C:/Users/simon/Documents/GitHub/20269-eei-report"
+    global filepath "C:/Users/simon/Documents/GitHub/20269-eei-report"
+	global output "$filepath/output"
+	global data "$filepath/data"
+}
+
+* Fallback for unknown users - use current directory
+if ("`user'" != "stefanograziosi" & "`user'" != "enricoancona" & "`user'" != "simon") {
+    global filepath "."
+	global output "./output"
+	global data "./data"
 }
 
 *=============================================================================
@@ -155,7 +168,7 @@ predict TFP_LP_13, omega
 
 ** sector 29 (Automotive)
 
-xi: levpet ln_real_VA if sector==29, free(ln_L i.country i.year) proxy(ln_real_M) capital(ln_real_K) reps(20) level(99)
+xi: levpet ln_real_VA if sector==29, free(ln_L i.country i.year) proxy(ln_real_M) capital(ln_real_K) reps(20) level(99) va
 predict TFP_LP_29, omega
 
 	/* A: answer and comment */
@@ -231,33 +244,33 @@ use "$output/part_I_cleaned_sample.dta", clear
 
 tw (kdensity TFP_WRDG if sector==13, lcolor(sienna)) || (kdensity TFP_WRDG if sector==29, lcolor(black)), title("TFP Densities with WRDG") legend(label(1 "Textile") label(2 "Automotive"))
 
-graph save Q4a_WRDG.gph, replace
+graph save "$output/Q4a_WRDG.gph", replace
 graph export "$output/Q4a_WRDG.png", replace
 
 tw (kdensity ln_TFP_WRDG if sector==13, lcolor(sienna)) || (kdensity ln_TFP_WRDG if sector==29, lcolor(black)), title("Log-TFP Densities with WRDG") legend(label(1 "Textile") label(2 "Automotive"))
 
-graph save Q4a_lnWRDG.gph, replace
+graph save "$output/Q4a_lnWRDG.gph", replace
 graph export "$output/Q4a_lnWRDG.png", replace
 
 ** LP estimates
 
 tw (kdensity TFP_LP if sector==13, lcolor(sienna)) || (kdensity TFP_LP if sector==29, lcolor(black)), title("TFP Densities with LP") legend(label(1 "Textile") label(2 "Automotive"))
 
-graph save Q4a_LP.gph, replace
+graph save "$output/Q4a_LP.gph", replace
 graph export "$output/Q4a_LP.png", replace
 
 tw (kdensity ln_TFP_LP if sector==13, lcolor(sienna)) || (kdensity ln_TFP_LP if sector==29, lcolor(black)), title("Log-TFP Densities with LP") legend(label(1 "Textile") label(2 "Automotive"))
 
-graph save Q4a_lnLP.gph, replace
+graph save "$output/Q4a_lnLP.gph", replace
 graph export "$output/Q4a_lnLP.png", replace
 
 * comparison  WRDG vs LP
 
-graph combine Q4a_WRDG.gph Q4a_LP.gph
+graph combine "$output/Q4a_WRDG.gph" "$output/Q4a_LP.gph"
 
 graph export "$output/Q4a_comparison_LP_vs_WRDG.png", replace
 
-graph combine Q4a_lnWRDG.gph Q4a_lnLP.gph
+graph combine "$output/Q4a_lnWRDG.gph" "$output/Q4a_lnLP.gph"
 
 graph export "$output/Q4a_comparison_lnLP_vs_lnWRDG.png", replace
 
@@ -276,19 +289,19 @@ keep if sector == 13
 
 tw (kdensity TFP_WRDG if country == "France", lcolor(blue)) || (kdensity TFP_WRDG if country == "Spain", lcolor(orange)) (kdensity TFP_WRDG if country == "Italy", lcolor(red)), title("TFP Densities in Textile (NACE-13) — WRDG") legend(label(1 "France") label(2 "Spain") label(3 "Italy"))
 
-graph save Q4b_WRDG_13.gph, replace
+graph save "$output/Q4b_WRDG_13.gph", replace
 graph export "$output/Q4b_WRDG_13.png", replace
 
 * LP estimates for Textile
 
 tw (kdensity TFP_LP if country == "France", lcolor(blue)) || (kdensity TFP_LP if country == "Spain", lcolor(orange)) (kdensity TFP_LP if country == "Italy", lcolor(red)), title("TFP Densities in Textile (NACE-13) — LP") legend(label(1 "France") label(2 "Spain") label(3 "Italy"))
 
-graph save Q4b_LP_13.gph, replace
+graph save "$output/Q4b_LP_13.gph", replace
 graph export "$output/Q4b_LP_13.png", replace
 
 * comparison WRDG vs LP for Textile
 
-graph combine Q4b_WRDG_13.gph Q4b_LP_13.gph
+graph combine "$output/Q4b_WRDG_13.gph" "$output/Q4b_LP_13.gph"
 graph export "$output/Q4b_comparison_LP_vs_WRDG_13.png", replace
 
 restore
@@ -300,19 +313,19 @@ keep if sector == 29
 
 tw (kdensity TFP_WRDG if country == "France", lcolor(blue)) || (kdensity TFP_WRDG if country == "Spain", lcolor(orange)) (kdensity TFP_WRDG if country == "Italy", lcolor(red)), title("TFP Densities in Automotive (NACE-29) — WRDG") legend(label(1 "France") label(2 "Spain") label(3 "Italy"))
 
-graph save Q4b_WRDG_29.gph, replace
+graph save "$output/Q4b_WRDG_29.gph", replace
 graph export "$output/Q4b_WRDG_29.png", replace
 
 * LP estimates for Automotive
 
 tw (kdensity TFP_LP if country == "France", lcolor(blue)) || (kdensity TFP_LP if country == "Spain", lcolor(orange)) (kdensity TFP_LP if country == "Italy", lcolor(red)), title("TFP Densities in Automotive (NACE-29) — LP") legend(label(1 "France") label(2 "Spain") label(3 "Italy"))
 
-graph save Q4b_LP_29.gph, replace
+graph save "$output/Q4b_LP_29.gph", replace
 graph export "$output/Q4b_LP_29.png", replace
 
 * comparison WRDG vs LP
 
-graph combine Q4b_WRDG_29.gph Q4b_LP_29.gph
+graph combine "$output/Q4b_WRDG_29.gph" "$output/Q4b_LP_29.gph"
 graph export "$output/Q4b_comparison_LP_vs_WRDG_29.png", replace
 
 restore
@@ -330,15 +343,15 @@ keep if sector == 13
 
 tw (kdensity TFP_WRDG if country == "France" & year == 2006, lcolor(blue)) || (kdensity TFP_WRDG if country == "France" & year == 2015, lcolor(orange)), title("TFP in France with WRDG") legend(label(1 "2006") label(2 "2015"))
 
-graph save Q4c_WRDG_France.gph, replace
+graph save "$output/Q4c_WRDG_France.gph", replace
 graph export "$output/Q4c_WRDG_France.png", replace
 
 tw (kdensity TFP_WRDG if country == "Spain" & year == 2006, lcolor(blue)) || (kdensity TFP_WRDG if country == "Spain" & year == 2015, lcolor(orange)), title("TFP in Spain with WRDG") legend(label(1 "2006") label(2 "2015"))
 
-graph save Q4c_WRDG_Spain.gph, replace
+graph save "$output/Q4c_WRDG_Spain.gph", replace
 graph export "$output/Q4c_WRDG_Spain.png", replace
 
-graph combine Q4c_WRDG_France.gph Q4c_WRDG_Spain.gph
+graph combine "$output/Q4c_WRDG_France.gph" "$output/Q4c_WRDG_Spain.gph"
 graph export "$output/Q4c_comparison_FR_vs_SP_WRDG.png", replace
 
 restore
@@ -351,15 +364,15 @@ keep if sector == 13
 
 tw (kdensity TFP_LP if country == "France" & year == 2006, lcolor(blue)) || (kdensity TFP_LP if country == "France" & year == 2015, lcolor(orange)), title("TFP in France with LP") legend(label(1 "2006") label(2 "2015"))
 
-graph save Q4c_LP_France, replace
+graph save "$output/Q4c_LP_France.gph", replace
 graph export "$output/Q4c_LP_France.png", replace
 
 tw (kdensity TFP_LP if country == "Spain" & year == 2006, lcolor(blue)) || (kdensity TFP_LP if country == "Spain" & year == 2015, lcolor(orange)), title("TFP in Spain with LP") legend(label(1 "2006") label(2 "2015"))
 
-graph save Q4c_LP_Spain.gph, replace
+graph save "$output/Q4c_LP_Spain.gph", replace
 graph export "$output/Q4c_LP_Spain.png", replace
 
-graph combine Q4c_LP_France.gph Q4c_LP_Spain.gph
+graph combine "$output/Q4c_LP_France.gph" "$output/Q4c_LP_Spain.gph"
 graph export "$output/Q4c_comparison_FR_vs_SP_LP.png", replace
 
 restore
@@ -533,10 +546,10 @@ save "$output/sum_china_shock_merged", replace
 
 
 	*—— Convert & merge NUTS-2 shapefile ————————————————————————————————————*
-shp2dta using "/Users/stefanograziosi/Documents/GitHub/20269-eei-report/data/NUTS_RG_20M_2013_3035.shp", database("nuts2_db.dta") coordinates("nuts2_coords.dta") genid(uid) replace
+shp2dta using "$data/NUTS_RG_20M_2013_3035.shp", database("$output/nuts2_db.dta") coordinates("$output/nuts2_coords.dta") genid(uid) replace
 
 	*—— Load & merge region-cross-section shocks ——————————————————————————————*
-use "nuts2_db.dta", clear
+use "$output/nuts2_db.dta", clear
 describe
 
 merge 1:1 NUTS_ID using "$output/sum_china_shock_merged.dta"
@@ -544,7 +557,7 @@ drop if _merge==1
 drop _merge
 
 	*—— Map average China shock ——————————————————————————————————————*
-spmap sum_china_shock using "nuts2_coords.dta", id(uid) 						///
+spmap sum_china_shock using "$output/nuts2_coords.dta", id(uid) 						///
     fcolor(Blues) clmethod(kmeans) clnumber(8) ocolor(none) 					///
     title("Avg. 5-Year China Shock by NUTS-2 Region") 							///
     note("Source: own elaboration based on Colantone and Stanig (AJPS, 2018)", size(2.5)) ///
@@ -568,7 +581,7 @@ rename nuts2 NUTS_ID
 
 save "$output/manuf_share.dta", replace
 
-use "nuts2_db.dta", clear
+use "$output/nuts2_db.dta", clear
 describe
 
 merge 1:1 NUTS_ID using "$output/manuf_share.dta"
@@ -576,7 +589,7 @@ keep if _merge==3
 drop _merge
 
 
-spmap manuf_share using "nuts2_coords.dta", ///
+spmap manuf_share using "$output/nuts2_coords.dta", ///
     id(uid) ///
     fcolor(Greens)  ///
     clmethod(kmeans) ///
@@ -937,7 +950,7 @@ merge m:1 nuts2 using "$output/sum_china_shock_merged.dta", keep(match)
 
 	drop _merge
 
-save "$output\Q7ab.dta", replace
+save "$output/Q7ab.dta", replace
 	
 sort nuts2
 	
