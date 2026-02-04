@@ -27,8 +27,6 @@
 /* 								Setup 										*/
 *=============================================================================
 
-set more off
-
 /* For commands */
 /*
 ssc install outreg2, replace
@@ -52,38 +50,50 @@ grstyle set plain, horizontal
 * Note: This file is now located in /code directory. Paths are set relative
 * to the repository root for portability across different systems.
 
+clear all
+set more off
+set maxvar 10000
+
+* Detect username and set paths
 local user = c(username)
 
 if ("`user'" == "stefanograziosi") {
-	cd "/Users/stefanograziosi/Documents/GitHub/20269-eei-report"
-    global filepath "/Users/stefanograziosi/Documents/GitHub/20269-eei-report"
-	global output "$filepath/output"
-	global data "$filepath/data"
+    global root "/Users/stefanograziosi/Documents/GitHub/20269-eei-report"
 }
 else if ("`user'" == "enricoancona") {
-	cd "C:/Users/enricoancona/Documents/GitHub/20269-eei-report"
-    global filepath "C:/Users/enricoancona/Documents/GitHub/20269-eei-report"
-	global output "$filepath/output"
-	global data "$filepath/data"
+    global root "C:/Users/enricoancona/Documents/GitHub/20269-eei-report"
 }
 else if ("`user'" == "simon") {
-	cd "C:/Users/simon/Documents/GitHub/20269-eei-report"
-    global filepath "C:/Users/simon/Documents/GitHub/20269-eei-report"
-	global output "$filepath/output"
-	global data "$filepath/data"
+    global root "C:/Users/simon/Documents/GitHub/20269-eei-report"
 }
 else {
-	* Fallback for unknown users - use parent directory of code folder
-	cd ".."
-    global filepath "."
-	global output "./output"
-	global data "./data"
+    * Fallback: assume current directory is repository root
+    global root "."
 }
 
-* Define output subdirectories for organized file management
-global figures "$output/figures"
-global tables "$output/tables"
+* Set subdirectory globals
+global code     "$root/code"
+global data     "$root/data"
+global output   "$root/output"
+global figures  "$output/figures"
+global tables   "$output/tables"
 global intermediate "$output/intermediate"
+
+* Data subdirectories
+global firm_data    "$data/firm_level"
+global regional     "$data/regional"
+global trade        "$data/trade"
+global political    "$data/political"
+global shapefiles   "$data/shapefiles"
+
+* Set working directory
+cd "$root"
+
+* Create output directories if they don't exist
+capture mkdir "$output"
+capture mkdir "$figures"
+capture mkdir "$tables"
+capture mkdir "$intermediate"
 
 *=============================================================================
 /*)))))))))))))))))))) 			PART 1 			((((((((((((((((((((((((((((*/
@@ -118,7 +128,7 @@ preserve
 		)													///  
 		nformat(%7.2f mean) 								///
 		title(Table 1. Descriptive statistics for textiles and automotive in Pas de Calais, France, in 2007) ///
-		export(output/table1.tex, replace) 
+		export($tables/table1.tex, replace) 
 		
 	*graph box real_sales real_K real_M real_VA L W if sizeclass != 5, over(sizeclass) by(sector, cols(1))
 restore
@@ -141,7 +151,7 @@ preserve
 		)													///  
 		nformat(%7.2f mean) 								///
 		title(Table 1. Descriptive statistics for textiles and automotive in Pas de Calais, France, in 2017) ///
-		export(output/table2.tex, replace) 
+		export($tables/table2.tex, replace) 
 restore
 
 	/* A: answer and comment */
@@ -487,7 +497,7 @@ set scheme s2color
 /* (a) Merge the first three datasets together. Compute the China shock for each region, in each year for which it is possible, according to the equation above. Use a lag of 5 years to compute the import deltas (i.e., growth in imports between t-6 and t-1). Repeat the same procedure with US imports, i.e., substituting ∆IM P Chinackt with ∆IM P ChinaU SAkt, following the identification strategy by Colantone and Stanig (AJPS, 2018). */
 
 	*—— i. Load pre-sample employment shares (first year only) ———————————————*
-use "$data/Employment_Shares_Take_Home.dta", clear //SOSTITUISCI CON "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9f6ab9ad83ef936eba49ec6a/data/Employment_Shares_Take_Home.dta"
+use "$regional/Employment_Shares_Take_Home.dta", clear
 
 sort country nuts2 nace year
 
@@ -572,7 +582,7 @@ save "$intermediate/sum_china_shock_merged.dta", replace
 
 
 	*—— Convert & merge NUTS-2 shapefile ————————————————————————————————————*
-shp2dta using "$data/NUTS_RG_20M_2013_3035.shp", database("$intermediate/nuts2_db.dta") coordinates("$intermediate/nuts2_coords.dta") genid(uid) replace
+shp2dta using "$shapefiles/NUTS_RG_20M_2013_3035.shp", database("$intermediate/nuts2_db.dta") coordinates("$intermediate/nuts2_coords.dta") genid(uid) replace
 
 	*—— Load & merge region-cross-section shocks ——————————————————————————————*
 use "$intermediate/nuts2_db.dta", clear
@@ -595,7 +605,7 @@ graph export "$figures/map_sum_china_shock.pdf", as(pdf) replace
 kdensity sum_china_shock
 
 	*—— Compute & map pre-sample manufacturing share ——————————————————————*
-use "$data/Employment_Shares_Take_Home.dta", clear
+use "$regional/Employment_Shares_Take_Home.dta", clear
 
 keep if year==1988
 
@@ -658,7 +668,7 @@ save "$intermediate/sum_china_shock_merged.dta", replace
 
 /* Use the dataset "EEI TH P6 2025.dta" to construct an average of TFP and wages during the post-crisis years (2014-2017). Create a lag of 3 years in the control variables (education, GDP and population). Now merge the data you have obtained with data on the China shock (region-specific average). */
 
-use "$data/EEI_TH_P6_2025.dta", clear
+use "$regional/EEI_TH_P6_2025.dta", clear
 
 * generate 2014-2017 averages for TFPs and wages
 gen tfp_temp = tfp if inrange(year, 2014, 2017)
@@ -962,7 +972,7 @@ estout m1 First_Stage_wage m3 First_Stage_wage_int ///
 
 /* (a) Merge the ESS dataset with data on the China shock (region-specific average), based on the region of residence of each respondent. */
 
-use "$data/ESS8e02_3", clear
+use "$regional/ESS8e02_3", clear
 
 	keep if cntry == "IT"
 	
@@ -1063,7 +1073,7 @@ save "$intermediate/Q7cd.dta", replace
 	
 /* (e) Starting from the augmented ESS dataset used in the previous regressions, attach to the variable "party voted in last national election" the score for the "very general favorable references to underprivileged minority groups" available in the Manifesto Project for the election of 2013. You can search in the codebook the code for this score in the dataset. Please note that party names do not necessarily match exactly, and that ESS may have more parties than coded by the Manifesto Project. In the end, you should be able to match 9 parties. */
 
-use "$data/MPDataset_MPDS2024a_stata14.dta", clear
+use "$political/MPDataset_MPDS2024a_stata14.dta", clear
 
 keep if countryname == "Italy" & coderyear == 2013
 
