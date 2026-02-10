@@ -510,11 +510,7 @@ use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9
 
 sort year country nace
 
-<<<<<<< Updated upstream
 merge 1:m year country nace using "$intermediate/weights_pre.dta"
-=======
-merge 1:m year country nace using "$processed/weights_pre.dta"
->>>>>>> Stashed changes
 
 egen panel_id = group(country nace nuts2)
 xtset panel_id year
@@ -536,11 +532,7 @@ gen country = "USA"
 
 sort year country nace
 
-<<<<<<< Updated upstream
 merge 1:m year nace using "$intermediate/weights_pre.dta"
-=======
-merge 1:m year nace using "$processed/weights_pre.dta"
->>>>>>> Stashed changes
 
 egen panel_id_us = group (nace nuts2)
 xtset panel_id_us year
@@ -581,11 +573,7 @@ save "$intermediate/collapsedimpshock_us.dta", replace
 
 use "$intermediate/collapsedimpshock.dta", clear
 
-<<<<<<< Updated upstream
 merge 1:1 NUTS_ID using "$intermediate/collapsedimpshock_us.dta"
-=======
-merge 1:1 NUTS_ID using "$processed/collapsedimpshock_us.dta"
->>>>>>> Stashed changes
 drop _merge
 
 save "$intermediate/sum_china_shock_merged.dta", replace
@@ -708,11 +696,7 @@ rename country_str country
 rename nuts_code nuts2
 keep nuts2 nace2_2_group year tfp avg_tfp avg_wage edu_lag3-pop_lag3 country
 
-<<<<<<< Updated upstream
 merge m:1 nuts2 using "$intermediate/sum_china_shock_merged.dta"
-=======
-merge m:1 nuts2 using "$processed/sum_china_shock_merged.dta"
->>>>>>> Stashed changes
 format nuts2 %-10s
 drop if _merge==1
 drop _merge
@@ -733,10 +717,7 @@ save "$intermediate/Q6.dta", replace
 
 * run OLS regression for average TFP
 
-<<<<<<< Updated upstream
 use "$intermediate/Q6.dta", clear
-=======
-use "$processed/Q6.dta", clear
 
 * Collapse to a true cross-section: one observation per nuts2 × nace
 * The dependent variables (avg_tfp, avg_wage) are already time-invariant averages,
@@ -751,8 +732,6 @@ label variable sum_china_shock_us "U.S. imports from China"
 label variable edu_lag3 "Education (lagged)"
 label variable gdp_lag3 "GDP (lagged)"
 label variable pop_lag3 "Population (lagged)"
-
->>>>>>> Stashed changes
 gen dummy = 1
 gen y = runiform()
 reg y if dummy == 1 // blank model for table formatting
@@ -1023,19 +1002,12 @@ use "$regional/ESS8e02_3", clear
 	
 	save "$intermediate/ESS8_Italy_cleaned.dta", replace
 
-<<<<<<< Updated upstream
 merge m:1 nuts2 using "$intermediate/sum_china_shock_merged.dta", keep(match)
 
 	drop _merge
 
 save "$intermediate/Q7ab.dta", replace
-=======
-merge m:1 nuts2 using "$processed/sum_china_shock_merged.dta", keep(match)
 
-	drop _merge
-
-save "$processed/Q7ab.dta", replace
->>>>>>> Stashed changes
 	
 sort nuts2
 	
@@ -1057,13 +1029,7 @@ estadd scalar F_ols
 	
 /* (c) To correct for endogeneity issues, use the instrumental variable you have built before, based on changes in Chinese imports to the USA. Discuss the rationale for using this instrumental variable. What happens when you instrument the China shock in the previous regression? Comment both on first-stage and on second-stage results. */
 
-<<<<<<< Updated upstream
-merge m:1 nuts2 using "$intermediate/sum_china_shock_merged.dta", keep(match)
-
-drop _merge
-=======
 * NOTE: sum_china_shock_us already available from the merge at line 980, no second merge needed
->>>>>>> Stashed changes
 	
 xi: regress sum_china_shock sum_china_shock_us gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2)
 eststo First_Stage_IV_attitude
@@ -1163,11 +1129,7 @@ replace party_cmp = 32460 if prtvtbit == 5  // Scelta Civica
 replace party_cmp = 32630 if prtvtbit == 10  // Fratelli d'Italia
 replace party_cmp = 32021 if prtvtbit == 3  // Rivoluzione Civile (Ingroia)
 
-<<<<<<< Updated upstream
 merge m:1 party_cmp using "$intermediate/MP_cleaned.dta", keep(match)
-=======
-merge m:1 party_cmp using "$processed/MP_cleaned.dta", keep(match)
->>>>>>> Stashed changes
 
 drop _merge
 
@@ -1183,11 +1145,7 @@ save "$intermediate/Q7ef.dta", replace
 
 	with z being the variable for the "very general favorable references to underprivileged minority groups". Cluster the standard errors by Nuts region level 2. Be sure to use survey weights in the regressions. Comment. */
 	
-<<<<<<< Updated upstream
 use "$intermediate/Q7ef.dta", replace
-=======
-use "$processed/Q7ef.dta", clear
->>>>>>> Stashed changes
 
 gen z_pc = per705
 	
