@@ -1,0 +1,842 @@
+\documentclass[dvipsnames,11pt]{article}
+
+\input{SimpleStefMain}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\sisetup{detect-all, group-separator={,}, group-minimum-digits=4}
+\usepackage[gen]{eurosym}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\setlength{\headheight}{15pt} % Non so perché ma senza questo da un piccolo errore
+
+%\usepackage[default]{lato}
+
+\pagestyle{fancy}
+\fancyhf{} 
+\fancyhead[L]{\small 20269 | EEI} 
+\fancyhead[R]{\small Ancona, Donoghue, Graziosi} 
+\fancyhead[C]{\textbf{Final Report}}
+\fancyfoot[C]{\thepage} 
+\renewcommand{\headrulewidth}{0.4pt} 
+\renewcommand{\footrulewidth}{0pt}   
+
+\graphicspath{ {./images/} }
+
+%\titlepic{
+%    \makebox[0pt][c]{\hspace*{0.135cm}%
+%    \includegraphics[width=\paperwidth]{20236 Logo.png}
+%    }
+%}
+
+\title{20269 \\ Economics of European Integration\\[1cm] \textbf{Take Home Assignment}}
+\author{Enrico Ancona \and
+        Simone Donoghue \and
+        Stefano Graziosi
+        }
+\date{\textit{\today}}
+
+\usepackage{titlesec}
+\titlelabel{\thetitle.\quad} % ensures subsubsections are labeled
+\renewcommand\thesubsubsection{\Alph{subsubsection}} % A, B, C...
+\setcounter{secnumdepth}{3}  % number down to subsubsection
+\setcounter{tocdepth}{3}     % (optional) include in table of contents
+
+
+\begin{document}
+
+%\includepdf[pages=-]{20236_COVER_Final_Report.pdf}
+
+\maketitle
+
+\section{Problem I}
+
+    \subsection{Sectoral Comparison in 2007 (I.a)}
+
+        In 2007, the textile industry in Nord–Pas-de-Calais was highly fragmented with many small firms, whereas the automotive industry comprised far fewer firms on average and an order of magnitude larger in size. Table \ref{tab:desc_stats_pdc} summarizes key figures for the two sectors in 2007:
+        
+        \begin{table}[htbp]
+          \scriptsize
+          \centering
+          \caption{Descriptive statistics for textiles (NACE 13) and automotive (NACE 29) sectors in Pas de Calais, France, 2007}
+          \label{tab:desc_stats_pdc}
+          \resizebox{\textwidth}{!}{
+          \begin{tabular}{l 
+                          c rrrr 
+                          c rrrr}
+            \toprule
+            & \multicolumn{5}{c}{\textbf{NACE 13: Textiles}}
+            & \multicolumn{5}{c}{\textbf{NACE 29: Automotive}} \\
+            \cmidrule(lr){2-6}\cmidrule(lr){7-11}
+            Variable 
+              & N 
+              & Mean     & Median   & 25th Pct. & 75th Pct. 
+              & N 
+              & Mean      & Median   & 25th Pct. & 75th Pct. \\
+            \midrule
+            Real revenues (k€)   
+              & 142 
+              &  5 144.19 & 1 889.97  &   570.46  & 5 545.66  
+              &  60 
+              &109 773.12 & 4 541.93  & 1 005.29  &37 960.84   \\
+            Real capital (k€)    
+              &     
+              &    398.89 &   136.66  &    46.59  &   474.17  
+              &     
+              &  8 991.53 &   150.12  &    41.41  & 1 335.56   \\
+            Real materials (k€)  
+              &     
+              &  2 831.78 &   777.27  &   187.68  & 2 439.84  
+              &     
+              & 85 296.03 & 2 989.91  &   468.58  &18 417.93   \\
+            Real value added (k€)
+              &     
+              &  3 058.02 & 1 373.76  &   489.17  & 4 073.38  
+              &     
+              & 40 313.04 & 2 547.25  &   686.35  &11 357.85   \\
+            Employees (L)        
+              &     
+              &     34.66 &    18.00  &     8.00  &    42.00  
+              &     
+              &    293.82 &    28.00  &     7.50  &   111.00   \\
+            Employee costs (k€)  
+              &     
+              &  1 208.09 &   544.00  &   243.00  & 1 356.00  
+              &     
+              & 12 633.07 &   968.50  &   280.00  & 4 125.50   \\
+            \bottomrule
+          \end{tabular}
+          }
+        \end{table}
+
+
+
+        From the above, it is evident that textile firms were much smaller on average. The region had 142 textile firms, averaging only \(\sim\)34 employees each, compared to 60 automotive firms averaging \(\sim\)293 employees each. In total, the automotive sector actually provided more jobs than textiles despite having just a fraction of the firms. Average capital stock and revenues per firm in the automotive sector were correspondingly far higher – an average automotive firm held around €9 million in capital and generated €46 million in annual revenues, versus only \(\sim\)€0.40 million in capital and €5.14 million revenue for the average textile firm. This reflects the capital-intensive, large-scale nature of automotive manufacturing (e.g. assembly plants and major suppliers) against the labour-intensive, small-scale nature of textiles. Likewise, value added (a proxy for output or contribution to GDP) per firm was about €40.3 million in automotive, over 10 times larger than the \(\sim\)€3 million for the average textile firm. In short, 2007’s textile sector was characterized by many micro- and small enterprises, while the automotive sector was dominated by a few and very large firms.
+
+        These differences are visualized in Figure \ref{fig:firm_size_comparison}, which contrasts the firm size distributions (by number of employees) for textiles and automotive in 2007 (\ref{fig:firm_size_2007}) and 2017 \ref{fig:firm_size_2017}. Focusing on 2007, the textile firm size distribution is heavily concentrated around a peak of small sizes (most firms have only a few employees), whereas the automotive distribution is much flatter and more spread out, with a substantial right tail of firms having hundreds or even thousands of employees.
+
+        \begin{figure}[ht]
+            \centering
+            \begin{subfigure}[b]{0.45\textwidth}
+                \centering
+                 \includegraphics[width=\textwidth]{images/Q1/Figure1_firm_size_density_2007.pdf}
+                 \caption{Firm size distribution in 2007}
+                 \label{fig:firm_size_2007}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}[b]{0.45\textwidth}
+                \centering
+                 \includegraphics[width=\textwidth]{images/Q1/Figure1_firm_size_density_2017.pdf}
+                 \caption{Firm size distribution in 2017}
+                 \label{fig:firm_size_2017}
+            \end{subfigure}
+            \caption{Firm size distribution (employee count) in 2007 for textile (blue) and automotive (red) firms in Nord–Pas-de-Calais. X-axis is log10 of number of employees (e.g. 2 = 100 employees, 3 = 1000). Textile firms are concentrated at the lower end (micro/small sizes), while automotive firms show a broader size spread with a long tail of large employers.}
+            \label{fig:firm_size_comparison}    
+        \end{figure}
+
+        In concrete terms, most textile firms were micro-establishments. Over half of textile firms had fewer than 10 employees (micro firms), and \(\leq 5\%\) had 50+ employees. By contrast, a significant share of automotive firms fell into medium (50–249 employees) or large (250+ employees) categories, including several major plants exceeding 1000 workers. This stark contrast is further illustrated by the median firm sizes: the median textile firm had \(\sim\)18 employees (reflecting the prevalence of family-run workshops or small producers), whereas the median automotive firm had almost double the employees. The largest employers in automotive (assembly plants of companies like Renault, Peugeot, Toyota, etc.) each employed thousands – for example, Renault’s Douai plant and PSA’s Trith-Saint-Léger site each had on the order of 3,000–5,000 employees in this period – whereas the largest textile employers were only a few hundred workers at most (e.g. specialized textile factories around \(\sim\)500 employees).
+
+        \begin{remark}
+            Overall, the 2007 comparison highlights a structural difference: the textile sector was a cornerstone of the region’s traditional industrial base but was in decline, populated by numerous small firms struggling with productivity and international competition, whereas the automotive sector (though also facing globalization pressures) consisted of fewer but significantly larger and, supposedly, more productive firms.
+        \end{remark}
+        
+    \subsection{Sectoral Analysis in 2017 and Changes Since 2007 (I.b)}
+
+        By 2017, both sectors had undergone notable changes. Table \ref{tab:desc_stats_pdc_2017} presents the same indicators for 2017, allowing for comparison with 2007:
+
+        \begin{table}[htbp]
+          \scriptsize
+          \centering
+          \caption{Descriptive statistics for textiles (NACE 13) and automotive (NACE 29) sectors in Pas de Calais, France, 2017}
+          \label{tab:desc_stats_pdc_2017}
+          \resizebox{\textwidth}{!}{
+          \begin{tabular}{l 
+                          c rrrr 
+                          c rrrr}
+            \toprule
+            & \multicolumn{5}{c}{\textbf{NACE 13: Textiles}}
+            & \multicolumn{5}{c}{\textbf{NACE 29: Automotive}} \\
+            \cmidrule(lr){2-6}\cmidrule(lr){7-11}
+            Variable 
+              & N 
+              & Mean      & Median    & 25th Pct.  & 75th Pct. 
+              & N 
+              & Mean       & Median    & 25th Pct.   & 75th Pct. \\
+            \midrule
+            Real revenues (k€)   
+              &  87 
+              &  4 842.89   & 2 152.01   &   847.56    & 4 688.08    
+              &  49 
+              &110 000.00   & 8 826.56   & 1 737.69    &39 488.25   \\
+            Real capital (k€)    
+              &     
+              &    432.73   &  114.93    &    43.51    &  360.40    
+              &     
+              &  4 065.07   &  283.78    &    78.51    &1 210.80    \\
+            Real materials (k€)  
+              &     
+              &  1 980.58   &  529.91    &   188.69    &1 527.22    
+              &     
+              & 64 534.79   & 4 222.75    &   489.81    &15 569.38   \\
+            Real value added (k€)
+              &     
+              &  3 117.84   &1 774.73    &   801.39    &3 590.40    
+              &     
+              & 31 390.16   &3 306.33    &   832.63    &21 465.57   \\
+            Employees (L)        
+              &     
+              &    29.41    &   22.00    &     9.00    &   38.00    
+              &     
+              &   254.90    &   30.00    &    11.00    &  167.00    \\
+            Employee costs (k€)  
+              &     
+              &  1 062.93   &  640.00    &   276.00    &1 393.00    
+              &     
+              &  9 973.53   &1 175.00    &   403.00    & 7 297.00   \\
+            \bottomrule
+          \end{tabular}
+          }
+        \end{table}
+
+        \paragraph{Shake-out in Textiles}
+
+            From 2007 to 2017 the region’s textile firms fell from \(\sim\)142 to \(\sim\)87 (–37 \%) and employment by approximately \(\sim\)33 \%. Average firm size dipped from 34 to 28 workers, and by 2017 virtually no producer employed \(\geq\)250 people. The size distribution, as shown in \ref{fig:firm_size_2017}, became even more concentrated among micro and small establishments: very small workshops exited, the upper tail thinned, and surviving firms remained small rather than scaling up.
+
+        \paragraph{Resilience and Consolidation in Automotive}
+
+            Automotive suffered a gentler contraction. Firms declined from 60 to 49 (–18 \%) and jobs from \(\sim\)24,500 to \(\sim\)20,600 (–16 \%), yet average size stayed near 250 employees. Large assembly and Tier-1 plants such as Toyota Onnaing and Renault remained anchors, so the distribution stayed skewed toward big employers, with only a modest reduction in small suppliers.
+
+        \paragraph{Capital Deepening and Productivity}
+
+            Although the number of establishments fell between 2007 and 2017 (-39 \% in textiles and -18 \% in automotive), the surviving firms became markedly more capital-intensive and, on balance, more productive. In the textile industry, average real capital per firm edged up from €0.40 m to €0.43 m (+8 \%), while average real value added rose from €3.06 m to €3.12 m.  Because employment per firm dropped from 35 to 29 workers, value-added per worker jumped from \(\sim\) €88 k to \(\sim\) €106 k—about a 20 \% gain in labour productivity. Instead, in the automotive sector, the typically sized plant (median) saw real capital almost doubled—from €0.15 m to €0.28 m—and median value added increased from €2.55 m to €3.31 m.  With head-counts little changed (28 to 30 workers), median value-added per employee rose from \(\sim\) €91 k to \(\sim\) €110 k, a 21 \% productivity uplift.  
+        
+            These improvements point to genuine capital deepening and greater automation rather than simple firm growth, especially in the automotive sector where a few very large plants exited, pulling down the mean but leaving the typical establishment noticeably more capital-rich and efficient.
+
+    \subsection{Economic Interpretation (II)}
+
+        The observed patterns from 2007 to 2017 can be interpreted through the lens of TFP dynamics and reallocation: in particular, the changes reflect a combination of within-firm productivity improvements and between-firm reallocation (including firm exit), as formalized by the Foster et al. (2002) decomposition of aggregate productivity. According to this framework, changes in aggregate productivity $\Delta W_t$ can be decomposed into different components: a within-firm effect (productivity changes at continuing firms), between-firm effect (shifting shares among incumbents), a covariance effect (the interaction of changes in share and productivity), and net entry effects from entering and exiting firms.
+
+        \paragraph{Net Entry (Exit) Effects}
+
+            Textiles’ productivity gains stem mainly from a “cleansing” exit: many low-productivity, under-capitalised firms closed, raising the sector’s average efficiency. In a Foster-type decomposition, the net-entry term would be strongly positive, partly offsetting lost output. Automotive’s smaller shake-out implies only a minor selection contribution.
+
+        \paragraph{Within-firm Productivity Improvements}
+
+            Surviving companies—especially in automotive—raised productivity through automation, restructuring, and skill upgrades, as evidenced by higher median capital per worker. This within-firm effect explains most of automotive’s modest value-added-per-head rise despite lukewarm demand. In textiles the within term exists—survivors innovated or specialised—but is secondary to the exit effect; some mills endured by differentiation more than efficiency leaps.
+
+        \paragraph{Between-firm Reallocation and Covariance}
+
+            Gains can also come from productive firms expanding at others’ expense. In textiles, the departure of many laggards automatically enlarged the share of better producers, giving a positive but limited between effect; covariance is small because few firms grew markedly. Automotive saw little reshuffling—the big assemblers mentioned before (Renault, Toyota) stayed big—so the between term is modest. Covariance may even be negative: firms boosting productivity often cut labour, so rising efficiency coincided with shrinking employment shares.
+
+        \begin{remark}
+            Overall, the reallocation effects in our case primarily come through exit and to a lesser degree through shifting shares among incumbents.
+        \end{remark}
+
+\section{Problem II}
+\setcounter{table}{0}
+
+    \subsection{Controlling for Country and Year Fixed Effects}
+
+        In order to overcome the issue posed by the presence of multiple countries and years, our approach is twofold: we implement a Fixed Effects (FE) model for the OLS and LP estimation, while for what it concerns the WRDG we do not need to implement any further modifications as it already accounts for panel data by definition (Woolridge, 2009).
+
+            \paragraph{Standard Fixed Effects model}
+
+                By including country dummies in both the OLS and LP estimations, we allow the average productivity (the intercept) to differ for Spain vs. France vs. Italy, so that the labour and capital coefficients are identified from within-country variations. This prevents any spurious cross-country differences from biasing the input coefficients. For example, if Italian textile firms on average have lower output for the same inputs due to structural factors, a country fixed effect will capture that difference, rather than forcing the labour coefficient to adjust to explain it. Year fixed effects similarly control for time-specific shocks or trends common to all firms: this is crucial given macroeconomic fluctuations (recessions, booms) and technological progress over time.
+
+            \paragraph{Woolridge procedure}
+
+                On top of the usual FE specification just described, the Wooldridge (WRDG) estimator, already employs lagged inputs and a proxy variable to remove simultaneity and to difference out all time-invariant firm characteristics. Country dummies can still be added for transparency, but they are not strictly required as the proxy-GMM system delivers consistency even in their absence.
+
+    \subsection{Empirical Results}
+
+        Two patterns stand out; first, OLS systematically overstates both labour and capital elasticities: the labour coefficient is inflated by roughly 0.16 in textiles and by 0.25 in automobiles. Second, the two semi-parametric procedures line up remarkably well, supporting the view that they both do account for the OLS bias.
+
+        Sectoral context helps to rationalise the magnitude of the gap. Textile production is labour-intensive and relies on short-term employment contracts, so plants can scale hours up or down quickly (Ciricllo \& Ricci, 2022); this flexibility makes labour especially endogenous and explains why the OLS–LP gap is already sizeable. The automotive industry, by contrast, is capital-heavy, organised in long production runs and bound by formal labour agreements (Mattioli et al. 2020). Moreover, Van Biesebroeck (2003) shows that higher-productivity plants (such as regional assembly lines for car makers) exploit the full range of assembly-line speeds, directly linking productivity innovations to shifts and line-speed adjustments—amplifying the simultaneity bias in OLS estimates
+
+        \input{tables/Q2/Q2_table}
+
+            \paragraph{Manufacture of Textiles}
+    
+                In NACE-13 the labour elasticity rises from \(0.638\) (LP) to \(0.663\) (WRDG) and all the way to \(0.808\) under OLS, implying an upward bias of about \(+0.17\) points relative to LP. The capital coefficient shows the same pattern: \(0.072\) (LP) vs.\ \(0.058\) (WRDG) vs.\ \(0.164\) (OLS). Thus, OLS attributes part of the unobserved productivity term to both inputs, inflating their elasticities.
+
+            \paragraph{Automotive Industry}
+
+                The bias is even stronger in NACE-29.  The labour coefficient jumps from \(0.647\) (LP) to \(0.683\) (WRDG) and to \(0.911\) with OLS—an upward bias of roughly \(+0.26\). The capital coefficient climbs from \(0.078\) (LP) and \(0.079\) (WRDG) to \(0.125\) with OLS. Again, the two semi-parametric estimators are close, while OLS clearly over-states the contribution of variable inputs.
+
+    \subsection{Analysing the Bias}
+
+            \paragraph{Selection bias}
+
+                Panels of manufacturing plants are not random: low-productivity producers are more likely to exit and high-productivity entrants survive. Estimating the production function only on survivors therefore over-represents firms whose input choices and shocks differ systematically from those that disappeared. The slides discuss this survivorship margin under the heading “net entry effects”, emphasising that productivity growth partly reflects the replacement of weak firms by better ones . Ignoring that selection forces the econometrician to treat a truncated sample as if it were random, which distorts the input-elasticity estimates.
+
+            \paragraph{Simultaneity bias}
+
+                Even more importantly, when a firm experiences an unobserved productivity shock $\omega_{it}$ early in the year, it typically adjusts variable inputs—labour, materials, even short-run capital (to a lesser extent, as labour tends to be more flexible especially in the textile sector) —before the annual accounts are closed. Because those inputs move in the same direction as the shock, they become positively correlated with the regression error in a log-linear production-function regression. OLS therefore attributes part of $\omega_{it}$ to the estimated input elasticities, yielding upward-biased coefficients—precisely what we see for $\texttt{ln(labour)}$ in both sectors. The lecture slides illustrate the mechanism and show that treating $\omega_{it}$ as an error correlated with inputs leads to “biased OLS estimates of $\beta_\ell , \beta_k , \beta_m$” . Simply applying firm fixed effects does not solve the problem: (i) most information in micro datasets is cross-sectional, so a within estimator is weak, and (ii) productivity moves with the cycle, violating the time-invariance assumption behind fixed effects (which we try to counteract with further year fixed effects).
+        
+            \paragraph{How to overcome the issue}
+
+                The modern literature addresses both biases by exploiting proxy variables and appropriate instruments. Olley and Pakes (1996) pioneered the control-function approach, using investment as a monotonic proxy for the unobserved shock and modelling the firm’s continuation decision to purge selection effects. Levinsohn and Petrin (2003) replaced lumpy investment with intermediate inputs, thereby increasing within-firm variation and avoiding zeros in the proxy. Both estimators, however, proceed in two stages and rely on high-order polynomial approximations whose finite-sample properties are sensitive to bandwidth and degree choices. 
+                
+                Wooldridge (2009) recasts the proxy-variable idea in a single-step GMM framework that stacks (i) the moment conditions implied by the proxy for simultaneity with (ii) those generated by lagged inputs as instruments, while (iii) allowing the inverse survival probability à la Olley–Pakes to enter the same system. This unified treatment delivers three practical advantages: higher efficiency, because all instruments are exploited simultaneously; robust (“sandwich”) standard errors without resort to bootstrapping; and a lighter computational burden that remains tractable in large, unbalanced panels. For these reasons the Wooldridge estimator has become the workhorse in recent firm-level productivity studies, yielding input elasticities—and the total-factor-productivity and mark-up measures derived from them—that are largely free of simultaneity and selection distortions.    
+            
+        \begin{remark}
+            Taken together, the evidence confirms that the upward bias in the fixed-effect OLS is driven by the twin forces of simultaneity and selection bias, and that modern proxy-variable estimators—especially the single-step Wooldridge procedure—offer a reliable route to consistent estimates.
+        \end{remark}
+       
+
+\section{Problem III}
+\setcounter{table}{0}
+
+    \subsection{Physical Output vs. Revenue}
+
+        A standard Cobb-Douglas production function is typically written in {physical} quantities:
+
+        \begin{equation}
+        \tag{Cobb-Douglass}
+            Q_{it} \;=\; A_{it}\,K_{it}^{\beta_{k}}\,L_{it}^{\beta_{\ell}}\,M_{it}^{\beta_{m}}
+        \end{equation}
+    
+        where \(Q_{it}\) is the firm's physical output, \(K\) is capital, \(L\) is labour, \(M\) is intermediate inputs (e.g.\ materials), and \(A_{it}\) is firm-level TFP (the ``Solow residual''). In empirical work, however, economists often use monetary measures (because of data constraints) instead of true physical output, namely (i) sales or (ii) value added, as in our case.
+
+            \paragraph{(i) Sales}
+
+                \begin{equation}
+                \tag{Revenue}
+                    \ln(\texttt{revenue}_{it}) \;\longrightarrow\; \ln\bigl(P_{it}\,Q_{it}\bigr) \;=\;\ln P_{it} + \ln Q_{it}.
+                \end{equation}
+    
+                Any variation in firm-level prices \(P_{it}\) is now {bundled together} with the true physical quantity \(Q_{it}\). As a result, an unobserved price shock (for example, a firm temporarily charging a higher price for reasons unrelated to higher physical productivity) will appear as higher ``output'' in the regression, even though physically it may not be more productive.
+
+            \paragraph{(ii) Value added}
+
+                \begin{equation}
+                \tag{Value Added}
+                    \texttt{value\_added} \;=\; \texttt{revenue} \;-\; \texttt{intermediate input costs (materials)}
+                \end{equation}
+    
+                With the current configuration, we remove the cost of materials from the left-hand side, effectively focusing on the contribution of labour and capital to the firm's net output. But price variation still matters: the value-added figure is still in monetary terms, so if the firm faces or sets a higher price, that may inflate the measured ``value added'' relative to a physically comparable scenario. \\
+    
+        
+        In both cases, if all firms faced the {same} prices and price changes, or if prices were constant over time, it would not matter so much---revenue would track physical output up to a common factor. However, within our context, it is reasonable to assume that prices vary across firms and time for many reasons. This causes biases when the empirical specification implicitly assumes that {log output} means only \(\ln Q_{it}\), not \(\ln P_{it} + \ln Q_{it}\).
+    
+    \subsection{Value-Added TFP vs. Revenue-Based TFP}
+
+        \paragraph{Identification of the Materials Coefficient}
+
+            If we subtract intermediate inputs from revenue (using the Value Added approach), we cannot then separately identify the coefficient on materials in the production function (because we have effectively removed it from the left-hand side). Conversely, in a revenue-based approach (including Levinsohn-Petrin's original setting with ``revenue'' as the dependent variable), we would still be able to estimate a coefficient on materials \(\beta_m\).
+
+        \paragraph{Sensitivity to Price Heterogeneity}
+
+            A revenue-based production function is more exposed to biases from heterogeneity in prices or markups across firms. If a firm simply charges a higher price, it will look as though it has ``higher output'' in logs and thus higher TFP---even though physically it may not be more productive. Using value added will still suffer from price issues on the {final} output price (because value added is still in monetary units), but it would nonetheless be net of the firm's intermediate-input spending. If large input purchases also reflect high input prices, that can offset differences to some extent.
+
+        \paragraph{Levinsohn \& Petrin and Wooldridge}
+
+            From a purely practical point of view, both the LP and WRDG can be done on {either} total revenue or value added; in this case, the difference is not in the logic of controlling for unobserved productivity via a proxy variable (materials or investment) but rather in how we define the dependent variable. Given the definition of TFP we employed so far, it is more accurate to follow the value added approach.
+
+        \paragraph{Bias from Unobserved Price Variation}
+
+            If a firm's inputs {respond} to unobserved productivity but also to firm-level price (or demand) shocks, then measuring output via revenue can cause simultaneity biases that are {not} just about unobserved productivity \(\omega\). They also reflect unobserved \(\ln P\). Value added can somewhat lessen that problem by removing part of the pass-through from intermediate input prices, but it does not completely eliminate price-based issues on the final output side.
+
+    \subsection*{Conclusion}
+
+        \begin{enumerate}
+          \item \textbf{Intermediate Inputs:} Value added strips out materials from the output measure, which changes both the coefficients and the interpretation.
+        
+          \item \textbf{Price or Markup Differences:} Measuring output in revenue terms means you cannot separate purely technological shocks from price or demand shocks. Value added also remains in monetary units but is somewhat less sensitive than total revenue to intermediate-input price movements.
+        
+          \item \textbf{Cobb-Douglas Assumptions:} The standard model posits a relationship in physical quantities. If you move to a revenue-based measure, you implicitly deviate from that assumption whenever firm-specific prices vary.
+        \end{enumerate}
+        
+        \begin{remark}
+            Consequently, if the theoretical goal is to estimate a {physical} production function (i.e., how many units of output are produced for given inputs), then using revenues or value added can lead to  {different} estimates, precisely because those monetary measures still carry price-related information. This is true whether we employ OLS, Levinsohn \& Petrin, or the Wooldridge approach, as the specific {semi-parametric} method just helps control for the simultaneity of inputs and productivity---{not} for unobserved price (demand) shocks. That explains why, in practice, results differ when implementing a ``revenues'' specification or a ``value-added'' specification.
+        \end{remark}
+
+\section{Problem IV}
+\setcounter{table}{0}
+\setcounter{figure}{0}
+
+%Note: replace some “it can be seen that”, with “in Graph X the …. Is plotted against …” + Missing: refer more explicitly to theory
+
+    \subsection{Question A – Comparing the two industries}
+
+    \begin{table}[htbp]
+    \centering
+            \caption{Total number of outliers}
+            \label{tab:obs_nace}
+            \begin{tabular}{
+              l
+              S[table-format=4.0]
+              S[table-format=4.0]
+            }
+              \toprule
+              & \multicolumn{2}{c}{Observations} \\
+              \cmidrule(lr){2-3}
+              & {NACE-13} & {NACE-29} \\
+              \midrule
+              WRDG  & 2242 & 2241 \\
+              LP    &  978 &  978 \\
+              \hline
+              Total & 3220 & 3219 \\
+              \bottomrule
+            \end{tabular}
+    \end{table}
+
+        In order to analyse the data, "extreme" values (below the 1st and above the 99th percentile) were removed. Table \ref{tab:obs_nace} shows the number of outliers, by estimation procedure and in each sector. In total, 3220 outliers were removed. The dataset was cleared from these observations and a new, cleaned one was created. 
+
+        Figure \ref{fig:Q4a_i} provides a visual inspection of the kernel density distribution of firms based on their TFP estimates, according to both LP and WRDG estimation procedures. Figure \ref{fig:Q4a_ii} plots the same distributions but using the log-transformed versions of the TFP estimates. 
+        \begin{figure}[ht]
+            \centering
+            \begin{subfigure}[b]{0.45\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{images/Q4/Q4a_WRDG.png}
+                \label{fig:Q4a_WRDG}
+            \end{subfigure}
+        \hfill
+            \begin{subfigure}[b]{0.45\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{images/Q4/Q4a_LP.png}
+                \label{fig:Q4a_LP}
+            \end{subfigure}
+            \caption{Sector-Specific TFP Distributions by Procedure}
+            \label{fig:Q4a_i}
+        \end{figure}
+
+        \begin{figure}[ht]
+            \centering
+            \begin{subfigure}[b]{0.45\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{images/Q4/Q4a_lnWRDG.png}
+                \label{Q4a_lnWRDG}
+            \end{subfigure}
+        \hfill
+            \begin{subfigure}[b]{0.45\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{images/Q4/Q4a_lnLP.png}
+                \label{Q4a_lnLP}
+            \end{subfigure}
+            \caption{Sector-Specific Log-Transformed TFP Distributions by Procedure}
+            \label{fig:Q4a_ii}
+        \end{figure}
+
+            \paragraph{Using WRDG}
+
+                If we consider WRDG estimates, we notice that both the textile and the automotive industries are characterised by a typical, right-skewed distribution, whereby most of the firms are at a relatively low productivity level (concentrated around the peak), and some few are extremely highly productive (along the prolonged right tail). The difference between the two sectors is that the average productivity level in the automotive may be slightly higher (the distribution is slightly shifted to the right).
+
+                The log-transformed version of the graph provides us with a more useful interpretation of the concentration of the two markets. Although they are pretty similar, it seems that machinery has a slightly higher concentration than textile (higher peak), and once again the average productivity level is higher (rightward shift). Hence, although the two industries are pretty similar, the automotive is slightly more concentrated and at a marginally higher productivity level. 
+
+            \paragraph{And comparing it to LP}
+
+                If we move on to using the LP procedure, we get a similar situation. Once again, in Figure \ref{fig:Q4a_i}, the distributions are both right skewed, with prolonged tails indicating the presence of highly productive firms in both sectors. 
+
+                However, the differences that were visible in the WRDG estimation are now much less evident, with the two distributions almost overlapping. Indeed, in Figure \ref{fig:Q4a_ii}, we can see that the distributions are more similar. Still, despite the overlapping, automotive firms seem to be more productive on average (slight rightward shift of the automotive distribution). \\
+
+            \begin{remark}
+                We conclude that firms in both industries follow a typical skewed distribution whereby most firms are concentrated on a low productivity level, and some few enjoy high productivity levels. When using the WRDG procedure, the automotive industry seems to be better performing, with most of the firms being concentrated at higher productivity levels. When relying on LP estimates, differences become less clear.
+            \end{remark}
+
+    \subsection{Comparing France, Spain and Italy in Each of the Two Industries}
+
+        \begin{figure}[ht]
+            \centering
+            \begin{subfigure}[b]{0.45\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{images/Q4/Q4b_WRDG_13.png}
+                \label{fig:Q4b_WRDG_13}
+            \end{subfigure}
+        \hfill
+            \begin{subfigure}[b]{0.45\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{images/Q4/Q4b_LP_13.png}
+                \label{fig:Q4b_LP_13}
+            \end{subfigure}
+        \hfill
+            \begin{subfigure}[b]{0.45\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{images/Q4/Q4b_WRDG_29.png}
+                \label{fig:Q4b_LP_29}
+            \end{subfigure}
+        \hfill
+            \begin{subfigure}[b]{0.45\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{images/Q4/Q4b_LP_29.png}
+                \label{fig:Q4b_WRDG_29}
+            \end{subfigure}
+            \caption{Country-Specific TFP Distributions by sector and procedure}
+            \label{fig:Q4b}
+        \end{figure}
+
+        Figure \ref{fig:Q4b} provides a visual comparison of densities in France, Spain and Italy for each Sector and Estimation Procedure. 
+
+            \paragraph{Using WRDG}
+
+                Once again, in both sectors the distributions of firms are right-skewed. What is clear is that, in the textile sector, most firms in Spain are concentrated around a lower level of productivity (higher peak at a lower TFP), while in France the concentration is lower and at a higher level of productivity (lower peak at a higher TFP). This difference is even more pronounced in the case of Italian textile firms. As for the automotive industry, the results show that most Spanish firms are still concentrated at a lower productivity level, but differences between French and Italian ones become less evident. 
+
+            \paragraph{And comparing it to LP}
+
+                Once again, when relying on the LP procedure, differences between countries become less visible. In the case of the textile industry, France and Spain have similar distributions, while Italy still stands out with a more dispersed one. As for automotive, all three distributions turn out to be pretty similar
+
+        \begin{remark}
+            In conclusion, when relying on WRDG estimates, the average Spanish firm appears to to be worse off in terms of productivity, while Italian one is better performing. The French firm is either in between the two, or more similar to the Italian. However, as before, the LP procedure softens discrepancies between countries, bringing distributions to overlap more. The only striking difference that remains is that the average Italian firm is better in the case of automotive.
+        \end{remark}
+
+        \subsection{Comparing changes in textile in France and Spain between 2006 and 2015}
+
+            We now focus our attention on the textile industry in France and Spain, and evaluate what happens between 2006 and 2015. Figure \ref{fig:Q4c} shows the distributions of interest, as usual with both WRDG and LP procedures.
+
+            \begin{figure}[ht]
+                \centering
+                \begin{subfigure}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/Q4/Q4c_WRDG_France.png}
+                    \label{fig:Q4c_WRDG_France}
+                \end{subfigure}
+            \hfill
+                \begin{subfigure}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/Q4/Q4c_LP_France.png}
+                    \label{fig:Q4c_LP_France}
+                \end{subfigure}
+            \hfill
+                \begin{subfigure}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/Q4/Q4c_WRDG_Spain.png}
+                    \label{fig:Q4c_WRDG_Spain}
+                \end{subfigure}
+            \hfill
+                \begin{subfigure}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/Q4/Q4c_LP_Spain.png}
+                    \label{fig:Q4c_LP_Spain}
+                \end{subfigure}
+                \caption{The Case of Textile TFP Distributions in France and Spain (2006 vs 2015)}
+                \label{fig:Q4c}
+            \end{figure}
+
+            \paragraph{Using WRDG}
+
+                As we can see in the upper graphs of Figure \ref{fig:Q4c}, the distribution of the textile industry changes in both countries within the time window. For France, the distribution flattens out and becomes less concentrated, with most firms now being concentrated at a higher level of productivity. For Spain, the situation is different, the change in distribution is less pronounced and, if anything, most firms now concentrate around a lower level of productivity.
+
+            \paragraph{And comparing it to LP}
+
+                When relying on the LP procedure, results are similar. French firms concentrate at a higher level of productivity, while Spanish ones do so albeit at a smaller one. 
+
+            
+        \begin{remark}
+                These results could be expected. French firms, which start on a relatively higher productivity level, may have better adaption strategies in place. This means that when it comes to shocks such as trade increase of technological improvements, their productivity might further increase. As for Spain, although on a smaller scale, the worsening of the productivity level for the average firm is expected if the firm is vulnerable to shocks.
+         \end{remark}
+
+    \subsection{Considerations on Skewness}
+
+        From a visual inspection, it seems that the skewness of the French distribution slightly decreases, as the peak slightly shifts to the right with both estimation procedures. In the case of Spain, the distribution appears to be be more skewed. These results are in line with the previous discussion. As the skewness in the French textile industry decreases, this means that most firms will be concentrated around a higher level of productivity, while the opposite seems to be happening in the Spanish case. 
+        
+        However, in order to obtain a clearer picture, a numerical estimation for the change in skewness can be carried out in STATA. Table \ref{tab:wrdg_lp_comparison} displays the changes in skewness parameters.
+
+        \begin{table}[htbp]
+          \centering
+          \caption{Skewness Parameters for France and Spain, by year and procedure}
+          \label{tab:wrdg_lp_comparison}
+          \begin{tabular}{
+            l
+            S[table-format=1.2] S[table-format=1.2]
+            S[table-format=1.2] S[table-format=1.2]
+          }
+            \toprule
+            Year
+              & \multicolumn{2}{c}{France}
+              & \multicolumn{2}{c}{Spain} \\
+            \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+              & {WRDG}
+              & {LP}
+              & {WRDG}
+              & {LP} \\
+            \midrule
+            2006  & 2.18  & 1.97  & 2.49  & 1.97  \\
+            2015  & 1.91  & 1.75  & 2.17  & 1.85  \\
+            \bottomrule
+          \end{tabular}
+        \end{table}
+
+        Indeed, the results confirm that the skewness in the French case decreases, both using WRDG and LP. As for the Spanish case, the results also point out to a decrease in skewness, although with greater variability, in contradiction with the visual findings from the previous graphs. 
+
+    \subsection{Homogeneity and parametrical analysis}
+
+        From the visual inspections of the graph, the changes are not homogenous. 
+
+        In the case of France, firms around the peak enjoy a moderate increase in average productivity. In the downward sloping part of the curve, there is noticeable bump, signalling an extraordinary increase for firms around those particular levels of productivity. As for the tail, the effects are more ambiguous. In the beginning, the tails seems to ‘fatten’, despite some variations in the degree of ‘fattening’. Towards the end, changes become less relevant and no conclusions can be drawn. 
+
+        In the case of Spain, the bulk of firms around the peak worsens in terms of productivity, with a leftward shift that is more pronounced in the case of the LP estimation. As for firms along the tail, the change is as ambiguous as that of the French case.
+
+        A parametrical approach that can be used to evaluate these changes is to assume that the these distributions are of a Pareto type, according to the following function: 
+
+        \begin{equation}
+        \tag{Pareto Distribution}
+            F(X) = 1 - \left( \frac{X}{X_m} \right)^{-k} \quad \xrightarrow[\text{transformation}]{\text{log}} \quad  \ln (1-F(X)) = k \ln(X_m) - k \ln (X)
+        \end{equation}
+
+        where \(k\) represents the shape (i.e., skewness) of the distribution. If \(k\) increases (that is, in absolute terms), then the distribution becomes less skewed, and small and unproductive firms will have more market shares. On the contrary, if k decreases, then the distribution becomes more skewed and highly productive firms benefit from a reallocation of market shares. 
+
+        Table \ref{tab:pareto-para} presents estimations for the k parameters of France and Spain in the textile sector (using the LP procedure): for each country, column 1 shows the average k estimate over the time period, column 2 that in 2006 and column 3 in 2015.
+
+        \vspace{0.25cm}
+
+        \begin{table}[h]
+            \centering
+            \caption{Pareto distributions for France and Spain in 2006 and 2015}
+            \label{tab:pareto-para}
+            \begin{tabular}{lcccccc}
+                 
+                & \multicolumn{3}{c}{France} & \multicolumn{3}{c}{Spain} \\
+                \cmidrule(lr){2-4} \cmidrule(lr){5-7}
+                & Average & 2006 & 2015 & Average & 2006 & 2015 \\ \hline
+                ln\_TFP\_LP 
+                    & -1.223***   & -1.187***   & -1.226***   
+                    & -1.055***   & -1.095***   & -1.056***   \\
+                & (0.00742)   & (0.0198)    & (0.0272)    
+                  & (0.00412)   & (0.0125)    & (0.0135)    \\
+                Constant 
+                    & 4.908***    & 4.810***    & 4.864***    
+                    & 4.083***    & 4.382***    & 4.039***    \\
+                & (0.0361)    & (0.0958)    & (0.133)     
+                  & (0.0196)    & (0.0602)    & (0.0637)    \\
+                Observations 
+                    & 7,817       & 978         & 621         
+                    & 21,450      & 2,500       & 1,919       \\
+                R-squared 
+                    & 0.777       & 0.787       & 0.766       
+                    & 0.754       & 0.755       & 0.763       \\ \hline
+                \multicolumn{7}{c}{Standard errors in parentheses} \\
+                \multicolumn{7}{c}{*** p$<$0.01, ** p$<$0.05, * p$<$0.1} \\
+            \end{tabular}
+        \end{table}
+
+    \begin{remark}
+        The results are in conflict with the previous discussion. The estimated parameter for France increases in absolute terms, signalling that the smallest, unproductive firms are gaining market shares. In the case of Spain, the parameter is decreasing in absolute terms, meaning that the most productive firms are benefiting from the reallocation effect. What could be further noticed is that changes in the parameter are not important ones, and that this could be still in line with the fact that, using the LP procedure, the differences stemming from changes in distributions have not been so clear cut insofar. 
+    \end{remark}
+
+\newpage
+\section{Problem V}
+\setcounter{table}{0}
+\setcounter{figure}{0}
+
+    \subsection{Visualizing China Shock and Manufacturing Intensity}
+
+        \begin{figure}[h]
+            \centering
+            \includegraphics[width=0.80\linewidth]{images/Q5/map_sum_china_shock.pdf}
+            \caption{Average import competition “China shock” by NUTS-2 region (1988–2007). Darker blue indicates stronger exposure.}
+            \label{fig:sum_china_shock}
+        \end{figure}
+
+        The first map \ref{fig:sum_china_shock} illustrates the average five-year Chinese import shock intensity across Western European regions. Each region’s shade reflects the scale of import pressure from China it faced, based on growth in Chinese imports weighted by the region’s initial industry employment. In essence, regions that had a large share of workers in industries where Chinese imports surged (e.g. textiles, electronics) show up in darker blue (indicating a higher shock) (Colantone \& Stanig 2018, p.941). The intensity is measured as an increase in import exposure per worker, aggregated over 1988–2007 and binned into quantiles (Autor, Dorn \& Hanson 2013 methodology). For example, a dark-shaded region like Cataluña (ES51) – a textile and apparel hub – experienced one of the strongest shocks, whereas light-blue areas (e.g. service-based regions, e.g. Île-de-France) saw minimal import competition. Overall, the map reveals considerable geographic variation in exposure to the China shock.
+
+        \begin{figure}[h]
+            \centering
+            \includegraphics[width=0.80\linewidth]{images/Q5/map_manuf_share.pdf}
+            \caption{Pre-sample manufacturing employment share by NUTS-2 region (circa 1988). Darker green indicates a higher share of the workforce in manufacturing.}
+            \label{fig:manuf_share}
+        \end{figure}
+
+        The second map \ref{fig:manuf_share} depicts each region’s initial manufacturing employment share at the end of the 1980s. Here shading corresponds to the proportion of the region’s total employment in manufacturing (circa 1988), with darker green regions having a larger industrial workforce. Intensity is measured simply as this fraction (from low [light] to high [dark] manufacturing prevalence). The classification uses k-means clustering of the shares, but conceptually darker areas approach around 20–25\% of employment in manufacturing, while lighter areas have only a few percent. For instance, Lombardia (ITC4) and Nord-Pas-de-Calais (FR30) – traditional industrial heartlands – appear in deep green, signifying their heavy reliance on manufacturing. In contrast, service-oriented or agrarian regions (lighter green) had much smaller manufacturing bases. This map highlights Europe’s manufacturing belt stretching through northern Italy, parts of France, and beyond, as of the late 1980s.
+
+    \subsection{Comparing Spatial Patterns of Shock vs. Industry}
+
+        \paragraph{Notable overlaps} A striking similarity between the two maps is that many regions with high manufacturing employment also show high China-shock exposure. This is intuitive, since the import shock measure is built on a region’s industrial base. For example, Lombardy (ITC4) in Northern Italy had one of the largest manufacturing workforces in 1988 (dark green) and likewise faced a substantial Chinese import shock (noticeably dark blue). The same holds for Cataluña (ES51) in Spain and Norte (PT11) in Portugal – both were manufacturing-heavy regions (textiles, apparel, footwear) and accordingly suffered strong import competition when China entered those markets. Similarly, Nord-Pas-de-Calais (FR30), a French region historically dominated by mining and textiles, combines a high pre-sample industrial share with among the higher shock intensities. In general, the industrial core of Western Europe – spanning parts of France, Northern Italy, Spain, and Germany – stands out on both maps. This broad correspondence suggests that the China shock predominantly hit the same manufacturing centres that had driven industrial employment, resulting in a positive spatial correlation between the two variables. 
+        
+        \paragraph{Notable divergences} Despite the overall overlap, there are important deviations where the maps do not coincide. One divergence is observed in regions with high manufacturing presence but comparatively modest China shock exposure due to the type of industry. A case in point is Piemonte (ITC1) in northwestern Italy. Piemonte was highly industrialized (home to the auto industry around Turin, thus dark green), yet its China shock exposure is only moderate blue. The reason is that its dominant sectors (automobiles and specialized machinery) faced relatively little direct competition from Chinese imports by 2007. A different kind of mismatch is seen in regions that were not top manufacturing centres overall yet still experienced a strong import shock. For example, Marche (ITI3) in central Italy had a medium manufacturing share (light-to-mid green) but was specialized in footwear and leather goods – industries that China penetrated aggressively in the 1990s. Consequently, Marche’s import shock intensity is higher (darker blue) than one might predict from its modest industrial size alone. These examples show that a region’s sectoral composition could amplify or dampen the impact of the China shock, creating exceptions to the general alignment between the maps.
+
+    \subsection{Theoretical Expectations and Observations}
+
+        \paragraph{Why similarity was expected} The observed correlation between shock exposure and initial manufacturing is largely by design of the shock measure and consistent with theory. Colantone and Stanig (2018) emphasize that the regional import shock is “based on historical industrial specialization” – in other words, regions with more manufacturing (especially in tradable sectors) were expected to be more exposed. The formula for the China shock is essentially a weighted sum of import growth in each industry, with weights equal to the region’s pre-sample employment in that industry (Colantone \& Stanig 2018, p. 940). In effect, manufacturing-intensive regions have a higher potential exposure simply because they have more workers in manufacturing to begin with. Trade theory predicts that a surge of imports will hit hardest where import-competing industries are concentrated (Autor, Dorn \& Hanson 2013). Indeed, globalization and technological change create “winners and losers”, and losers tend to be concentrated in specific industries and regions. Here, the losers are manufacturing workers in sectors like apparel, textiles, toys, or electronics that China came to dominate. We therefore expect a map of import shocks to mirror the map of manufacturing employment, as the latter represents the distribution of potentially affected industries. This expectation is grounded in the concept that the China shock was a major trade-induced structural change impacting industrial regions.
+
+        \paragraph{Why some divergence was anticipated} However, theory also alerts us that not all manufacturing is equally exposed. The extent of the China shock depends on which industries dominate a region’s manufacturing base. Sectors vary greatly in Chinese import penetration. For example, by the 2000s China had captured large shares of European imports in labour-intensive consumer goods (textiles, clothing, toys, electronics), but far less in capital-intensive or high-tech goods (machinery, automobiles, aerospace). Thus, a region like Piemonte (ITC1) with an automobile-centric industry would see a smaller shock than a region like Veneto (ITH3) or Marche (ITI3) specialized in textiles or shoes, even if their overall manufacturing employment was similar. Colantone and Stanig explicitly note that the import shock “will be stronger for regions in which relatively more workers were initially employed in those industries for which subsequent growth in imports from China has been stronger” – for example, textiles or electronics – and milder for regions focused on other manufacturing. Therefore, we expected some misalignment between the two maps in cases where the composition of manufacturing differed. Regions heavy in globally competitive sectors less challenged by China (pharmaceuticals, luxury automobiles, etc.) were predicted to experience a weaker shock than their manufacturing share alone would suggest. Conversely, regions specializing in a few vulnerable industries could get a disproportionately high shock relative to their size. These nuanced expectations stem from the nature of the China shock as an asymmetric hit to certain industries but not others.
+
+        \paragraph{Do the maps confirm the expectations?} By and large, the spatial overlap observed matches theoretical expectations. There is a clear correspondence: the China import shock predominantly struck the same areas that had large manufacturing workforces, confirming the anticipated link between industrial presence and exposure. The positive correlation evident between the two maps (high-high and low-low regions aligning) is no surprise – it reflects the mechanical construction of the shock measure and the economic reality that trade competition targets manufacturing jobs. At the same time, the deviations we identified (e.g. Piemonte’s lower-than-expected shock, Marche’s higher-than-expected shock) are fully consistent with the theoretical nuance that sector composition matters. In fact, such divergences serve to validate the notion that it’s what a region makes, not just how much, that determines vulnerability to the China shock. For instance, the relatively modest shock in Piemonte versus the stronger shock in Veneto or Marche aligns with the fact that China did not compete strongly in cars but did in clothing and footwear. Overall, the maps together depict a pattern of broad alignment with a few key exceptions, just as the theory would predict. This reinforces Colantone and Stanig’s argument that the China shock’s impact was uneven but predictable – concentrated in certain industrial enclaves (2018, pp. 940–943). The evidence therefore supports the theoretical expectation: initial manufacturing hubs were hardest hit by the China trade surge, with differences across regions explainable by the composition of their manufacturing sector.
+
+    \subsection{Conclusion and Policy Implication}
+
+        In summary, regions with stronger China shocks tend to be those that started with a heavier manufacturing orientation, though the match is not perfect and hinges on industry mix. This has an important policy implication: targeted adjustment and compensation for the hardest-hit industrial regions is crucial. The fact that the “China shock” maps onto long-standing manufacturing centres suggests that the fallout of globalization is spatially concentrated and predictable. Policymakers should therefore design region-specific policies to aid these local economies – for example, retraining programs for displaced factory workers, economic diversification initiatives, and social safety nets funded by gains from trade. The experience of Western Europe in 1988–2007 shows that without an adequate policy response, trade shocks to manufacturing regions can foster economic distress and fuel political backlash. As Rodrik (1997) and the theory of “embedded liberalism” (Ruggie, 1982) argue, sustaining open markets in the long run requires cushioning the losers. In practice, this means re-investing trade’s benefits into industrial regions like Lombardia or Nord-Pas-de-Calais – helping them adapt and thrive in a changing global economy, rather than leaving these regions behind. Such proactive adjustment policies would not only alleviate economic pain but also uphold social cohesion in the face of globalization’s disruptive shocks.
+
+\section{Problem VI}
+\setcounter{table}{0}
+
+    \subsection{Effects of Import Shock on Average Regional TFP (OLS)}
+
+    \input{tables/Q6/EEI_Take_Home_VI_bb}
+
+        Column 1 of Table 6-1 presents the results from running a simple regression of the post-crisis average TFP against the region-level China shock, controlling for 3-year lags of education, GDP and population. For the purpose of the analysis, country-year and industry-specific fixed effects were included. The main result is that the Import shock has a positive and statistically significant effect on average regional productivity.
+
+        However, the estimated coefficient may be affected by potential endogeneity. The main source of endogeneity here may be the presence of reverse causality: indeed, it could be that highly productive regions are more exposed to international trade, and will probably have a higher demand for Chinese inputs. This means that more productivity will also entail more exposure to the China shock, introducing an upward bias to the estimated coefficient.
+
+    \subsection{Effects of Import Shock on Average Regional TFP (IV)}
+
+        The potential endogeneity can be addressed by adopting an IV approach, by instrumenting the import shock using change in imports from China to the U.S. This allows one to isolate the supply-side shock from any domestic demand confounding factor that is causing bias in the coefficient, such as that of the highly productive domestic firms. 
+        
+        Column 2 of Table 6-1 reports the results of this 2SLS estimation. We can see that the estimated coefficient is now lower, and still significant. This indicates that the IV approach compensates for the previously hinted upward bias.
+        
+        One remark must be made on possible remaining concerns regarding the validity of the exclusion restriction. Indeed, using the IV approach can be a valid strategy if there are no correlated domestic and supply shock between the US and European countries that simultaneously have an impact on imports in both areas, while still affecting productivity. Further robustness checks must be carried out in order to address these concerns.
+
+
+    \subsection{Effects of Import Shock on Average Regional Wages (OLS and IV)}
+
+        Columns 1 and 2 in Table 6-2 present the results of running the OLS and 2SLS regressions of post-crisis average wages against the region-level China shock, similarly to the previous points. We notice that the coefficients are in both cases positive and statistically significant, indicating that the increased exposure to Chinese imports may have had positive effects on average regional wages. Once again, when the Import shock is instrumented by using the US one, an upward bias is corrected for.
+
+        In Columns 3 and 4, two controls are added: the post-crisis average TFP and an interaction term between average TFP and China Shock. As a result, the estimated coefficient becomes negative, statistically significant in both the OLS and the 2SLS cases. This signals the presence of some omitted variables being addressed by the added controls. 
+
+        In both cases, some heterogeneous effects are taken into account.
+        \begin{itemize}
+            \item When controlling for the average productivity, we are taking into account the fact that more productive regions will exhibit higher wages. Indeed, the coefficient of this control is positive and statistically significant.
+            \item When controlling for the interaction term, we also considering that highly productive regions also benefit from the Import shock, with a positive effect of this interaction also affecting wages. Once again, the positive and statistically significant coefficient of this interaction confirms this case.
+        \end{itemize}
+
+    \input{tables/Q6/EEI_Take_Home_VI_cc3}
+
+    \begin{remark}
+               In conclusion, adding control for productivity and heterogeneity of Import shock effects addresses some important bias concerns. What seemed to be a positive impact of the import shock on wages may be actually mostly captured by few, more productive regions, while the average and least productive ones experience a definitely more negative impact on average wages. This proves that the China shock has had distributional effects, creating "winners" and "losers" also on a geographical basis. 
+    \end{remark}
+
+\section{Problem VII}
+\setcounter{table}{0}
+
+% resets the table count within Chapter 7
+%\renewcommand{\thetable}{7.\arabic{table}}
+
+    \subsection{Linking Globalization to Support for Renewables Subsidies}
+
+        \subsubsection{OLS Results and Endogeneity Concerns}
+
+            Analysing the results of the OLS regression, we can immediately observe that the coefficient of the \texttt{China\_Shock} variable is positive (1.592) and statistically significant at the 5\% level.
+
+            The dependent variable under consideration, \texttt{sbsrnen}, a measure of the ``attitude towards the allocation of public money to subsidize renewable energies'', is a categorical numerical variable ranging from 1 to 5 (where 1 = ``strongly in favour'' of the green subsidy policy and 5 = ``strongly opposed''), this result clearly indicates that greater individual exposure to the \texttt{China\_Shock} corresponds to higher ideological opposition to public spending aimed at supporting investments in clean energy production and related initiatives.
+
+            Although the coefficient is large and significant, we cannot establish a causal link between the \texttt{China\_Shock} and the dependent variable through an OLS regression alone, due to likely endogeneity concerns stemming from unobserved confounders that can bias coefficient estimates, either upward or downward. Below, we list several examples of such confounding factors.
+
+        \paragraph{Factors Positively Correlated with \texttt{China\_Shock} — Upward Bias}
+
+            \begin{enumerate}
+                \item \textbf{Anti-globalist cultural sentiment in declining regions:} \\
+                If individuals residing in regions more heavily impacted by the \texttt{China\_Shock} (due to higher concentrations of manufacturing industries) were also, even prior to the shock, more inclined to distrust policies associated with a ``green agenda''—due to underlying anti-elite or anti-globalist ideology—then this ideological predisposition may inflate the observed association between the \texttt{China\_Shock} and attitudes towards public subsidies for renewables.
+            
+                \item \textbf{Populist political alignment and media narratives pre-dating the shock:} \\
+                Relatedly, if regions more affected by globalization have historically shown stronger support for anti-environmental, populist political parties and are more susceptible to media narratives that emphasize the alleged harmful economic consequences of green policies, then the estimated relationship between \texttt{China\_Shock} and opposition to environmental spending could be upward biased or even spurious.
+            \end{enumerate}
+
+        \paragraph{Factors Negatively Correlated with \texttt{China\_Shock} — Downward Bias}
+
+            \begin{enumerate}
+                \item \textbf{Local green investment programs and policy feedback effects:} \\ Affected regions may view government investments, such as subsidies for renewables, favourably, particularly when such initiatives are intended to revitalize economically struggling territories. Even if these regions are politically aligned with the populist right, direct experience with the benefits of green investment may increase support for such spending. \\ Both dynamics would contribute to a downward bias in the OLS estimate.
+            
+                \item \textbf{Higher awareness of environmental degradation:} \\
+                Residents in heavily industrialized and trade-exposed areas may suffer from poor environmental quality (e.g., polluted air, water contamination, degraded soil). These experiences could elevate public demand for environmental remediation and policies that support renewable energy, leading to an underestimation of the \texttt{China\_Shock}'s effect on opposition to green subsidies.
+            \end{enumerate}
+
+            \begin{remark}
+                In brief, we argued that the direction of the bias in an OLS regression — whether upward or downward — is often uncertain and must be evaluated empirically. To credibly estimate a causal effect, it is crucial to account for potential endogeneity. One robust method for doing so is the use of an instrumental variable approach, which allows to isolate exogenous variation in the \texttt{China\_Shock} and thus recover its true causal impact on attitudes toward public subsidies for renewable energy.
+            \end{remark}
+
+
+        \subsubsection{Instrumental Variable Strategy and IV Estimation Results}
+
+            Any instrumental variable, to be valid and useful in practical terms, must satisfy two key conditions:
+
+            \begin{enumerate}[label=\textbf{\alph*)}]
+                \item \textbf{Relevance}: the IV must be able to predict the endogenous regressor; in other words, the IV should be correlated with the endogenous variable being instrumented. \\ In the case of the IV adopted for the present analysis (\texttt{China\_Shock\_US}), the relevance condition is met: intuitively, the Italian China shock and the US China shock are correlated because they reflect shared industry-level Chinese export expansion.
+            
+                \item \textbf{Exogeneity}: the IV must affect the dependent variable only through its effect on the endogenous regressor and not through any other omitted variables or direct pathways. \\ That is, it must not be influenced or affected by Italian demand trends and fluctuations, regional political dynamics, lobbying, etc. Our IV very likely satisfies the exogeneity condition as well: it is hard to imagine strong mechanisms linking US-China trade and industrial policy to the internal political dynamics or public opinion of NUTS2 Italian regions.
+            \end{enumerate}
+
+            Therefore, the \texttt{China\_Shock\_US} IV isolates the supply-driven regional variation in exposure to Chinese imports, avoiding endogeneity from omitted factors.
+
+            \paragraph{First- and Second-Stage IV (2SLS) Regression Results}
+
+                In practice, we run both the first- and second-stage regressions to verify that the IV is strong and that the causal effect is reasonable and in line with theoretical expectations. Performing the first-stage regression, we obtain a positive ($\sim 0.075$) and strongly statistically significant coefficient at any conventional significance level (p-value < 0.001). Furthermore, we observe that the Kleibergen-Paap F-statistic is well above 10 ($\sim 1251.91)$, thus satisfying a commonly used rule of thumb that indicates the instrument is strong, or equivalently, that it has sufficient predictive power for the endogenous regressor. \\ Moving to the second stage, we immediately recognize that the IV-estimated causal effect coefficient ($\sim 1.483$) is slightly below the one obtained through the OLS regression ($\sim 1.592$), suggesting a mild upward bias in the latter estimate. Perhaps more importantly, the result of the IV regression allows us to conclude that the \texttt{China\_Shock} unequivocally pushes people toward more opposition to subsidizing renewables. Precisely, a one standard deviation increase in the \texttt{China\_Shock} (standard deviation $\sim 0.085$) leads to an estimated $0.085 \times 1.483 \sim 0.126$ increase in the attitude score used as the dependent variable. A more direct interpretation is given by the "Standardized IV effect on attitude score" value, which basically says that a 1-sd increase in the \texttt{China\_Shock} raises the value of \texttt{sbsrnen} by $\sim 6\%$ of its average level. As a side note, we speculate that the \texttt{sbsrnen} score may be regarded as a proxy for individuals' opinions concerning green policies more broadly.
+
+        \subsubsection{Coefficient Sign: Theoretical Interpretations and Mechanisms}
+
+            The fact that the coefficient obtained using the instrumental variable approach is positive inevitably calls for further theoretical exploration to identify plausible mechanisms at work. Among the myriad of possible explanations, the following appear particularly worthy of thoughtful examination:
+
+            \begin{enumerate}[label=\textbf{\alph*)}]
+                \item \textbf{Partisan polarization:} in Italy, some mainstream right-wing parties (e.g., \textit{Lega}) have adopted an anti-environmental stance, which includes criticism toward green subsidies. Individuals in those regions severely hit by competition from China are more likely to start listening to (and eventually voting for) the aforementioned right-wing parties, consequently inheriting their stance on green policies.
+                
+                \item \textbf{Fiscal strain and crowding out:} the ultimate consequence of a severe \texttt{China\_Shock} is often heightened unemployment. As the demand for essential welfare services rises and public resources become scarcer (e.g., due to lower tax revenues and greater welfare spending), individuals in the affected regions are likely to perceive investments in clean energy as an unnecessary ``luxury'' that deprives them of funding for much-needed healthcare or unemployment benefits.
+                
+                \item \textbf{Scapegoating and identitarian reactions:} the \texttt{China\_Shock} entails lost jobs, lower wages, diminished opportunities, and an overall harsher life for individuals living in the most affected areas. Rather than attributing their economic grievances to Italy's trade policy with China, constituents of these regions may prefer to blame green policies. Even more plausibly, they may feel alienated by fast-paced radical innovations that threaten their way of life - particularly in rural regions whose culture, traditions, and local pride (beyond just their economy) were built on industries both impacted by China-driven import competition and subject to the disruptive shifts of the green transition (e.g., textiles, automotive components and parts, steel).
+            \end{enumerate}
+
+            As the examples provided above suggest, there are several possible theoretical arguments that justify the sign of the estimated coefficient in the IV regression. Moreover, the result is consistent with the literature on the political consequences of globalization and the green transition discussed during the course. For instance, we have seen in Colantone and Staing (2018) that individuals in regions heavily exposed to import competition tend to vote for populist-right, nationalist, anti-globalist, culturally conservative parties. Our finding - the fact that more \texttt{China\_Shock} exposure leads to less support for renewable subsidies — fits well this narrative, since the voters considered perceive environmental policies like green subsidies as an integral part of globalist agendas promoted by the elites, and therefore are more likely to reject them.
+
+        \input{tables/Q7/EEI_Take_Home_VIIc}
+
+    \newpage
+    
+    \subsection{Why Globalization Undermines Electoral Support for Minority Rights}
+
+        In the following subsections, we will focus primarily on the results and interpretation of the 2SLS regression of our outcome variable of interest, \texttt{minority\_score}, on \texttt{China\_Shock} instrumented by \texttt{China\_Shock\_US}, without posing much attention to the OLS results. 
+
+        It is straightforward to observe how the reasoning and implications presented in section 7.1. substantially hold for the current analysis. (Note for example that OLS coefficients might be biased due to regional ideological pre-dispositions or the positive correlation between anti-globalist attitudes and anti-minority sentiments.)
+
+        \subsubsection{IV Estimates and Substantive Effect}
+
+            Controlling for demographic characteristics and NUTS-1 region dummies, we can deduce from the results presented in Table 7-2 that a one standard deviation increase in regional exposure to the \texttt{China\_Shock} leads to a $0.07$ point decrease in the log-transformed \texttt{minority\_score} of support for parties that favor underprivileged minority groups. In other words, the effect amounts to a $15.1\%$ decline in the \texttt{minority\_score} relative to the average support level.
+
+        \subsubsection{Results' Interpretation}
+
+            \paragraph{Understanding the Political Context}
+
+                Our result, given the characteristics of our dataset, warrants further examination. First, it is important to note that in our sample, only two parties received a non-zero score on the indicator "very general favourable references to underprivileged minority groups" (\texttt{per705 = z}): \textit{Rivoluzione Civile} (Ingroia) and the Five Star Movement (M5S). As a result, all other parties have a value of \texttt{z = 0}, and therefore, for most individuals, \texttt{minority\_score = log(0.5) = -0.69}.
+                Given that \textit{Rivoluzione Civile} obtained only 2.25\% of the vote in the Chamber of Deputies and 1.79\% in the Senate in the 2013 Italian election, our analysis essentially captures how a 1 standard deviation increase in exposure to the \texttt{China\_Shock} affects citizens’ likelihood of voting for the Five Star Movement. The estimate is conditional on a set of key covariates, such as \textit{gender, age, education}, and includes fixed effects for NUTS-1 regions.
+
+            \paragraph{Limitations and Interpretation Caveats}
+
+                While this result is informative, it is important to acknowledge some key limitations. First, the outcome variable is constructed from party-level manifesto scores, not individual-level attitudes toward minorities. Second, the variable is quasi-binary, since only a very small number of parties score above zero on \texttt{per705}. Despite these caveats, we can see how our IV result suggests that individuals living in regions more exposed to the \texttt{China\_Shock} (at the NUTS-2 level) were less likely to vote for the Five Stars Movement.
+
+            \paragraph{Reconciling the Effect with Theory}
+
+                At first glance, the finding may appear counter-intuitive: one might expect that economic hardship caused by globalization would increase voters' electoral support for redistributive platforms and policies like the ones promoted by M5S during the 2013 campaign —most notably the \textit{Reddito di Cittadinanza}, a basic income measure. 
+                
+                However, our result can instead be easily reconciled in light of recent analyses and narratives constructed by scholars including Prof. Colantone (see, for instance, Colantone \& Stanig, 2019). In this reference, the authors argue that economic distress often fuels cultural backlash and authoritarian tendencies, rather than greater support for left-leaning economic redistribution, as we extensively discussed in class (see Structural Change and Economic Nationalism class slides, p.59: “High taxes are not appealing to the middle-class constituency” and “Economic distress drives authoritarian, anti-immigration attitudes, not leftist”)
+
+            \paragraph{Implications for Redistribution and Political Strategy}
+
+                Although we cannot observe where voters in highly exposed regions reallocated their support — whether toward the centre-right (People of Freedom) or centre-left (Democratic Party), just to mention the most successful centre-right and centre-left parties at the 2013 elections  — our result may indicate that economic insecurity alone is not sufficient to generate support for redistribution-focused parties, and thus that electoral campaigns built around redistribution policies might not be that attractive to voters living in areas "losing to globalization" if not accompanied by a broader, coherent political platform properly addressing issues especially relevant for typically highly traditional, severely exposed constituencies, such as identity and immigration.
+
+            \input{tables/Q7/EEI_Take_Home_VIIf}
+
+    \subsection{Conclusions}
+
+        In the present section we argued that globalization, proxied by a steep increase in import competition from China, causes a non-negligible reduction in the \texttt{minority\_score}, which due to the construction and characteristics of the dataset used to run the analysis, can be interpreted as a decrease in the likelihood of individuals voting for the Five Stars Movement.
+
+        \noindent We would like to stress how, even if our explanation centers on the particular causal relationship emerging from the peculiarities of the data under scrutiny, the result linking globalization to narrow electoral support to parties advocating for minority groups holds robustly across many countries and election rounds. Indeed, as Colantone and Stanig (APSR, 2018) argue for the case of Brexit, voters suffering from economic grievances induced by import competition from China are more likely to turn towards 'economic nationalist' right after three non-mutually exclusive mechanisms, namely 'blind retrospection', 'take-back control' narratives, and 'anti-immigration' voting. Regardless of which of the mechanisms is stronger in explaining actual constituents' behaviour, it is evident that all of them closely relate to our outcome variable \texttt{minority\_score}, substantiating our findings and interpretation.
+
+        \noindent As a final note, we can mention the work from Gethin \& Piketty (2022), which sheds light on the fact that Support for minority rights tends to be (increasingly) seen as associated with urban, educated elites — and so perceived as a “luxury belief” by economically insecure individuals such as those severely hit by the \textit{China\_Shock}. 
+
+\newpage
+
+\section*{References}
+
+    \begin{enumerate}
+        \item Gethin, A., Martínez-Toledano, C., \& Piketty, T. (2022). Brahmin left versus merchant right: Changing political cleavages in 21 western democracies, 1948–2020. \textit{IDEAS Working Paper Series from RePEc}, 137(1), 1–48. \url{doi:10.1093/qje/qjab036}
+        
+        \item Cirillo, V., \& Ricci, A. (2022). Heterogeneity matters: Temporary employment, productivity and wages in italian firms. \textit{Economia Politica} (Bologna, Italy), 39(2), 567–593. \url{doi:10.1007/s40888-020-00197-2}
+
+        \item Colantone, I., \& Stanig, P. (2018). The trade origins of economic nationalism: Import competition and voting behavior in western europe. \textit{American Journal of Political Science}, 62(4), 936–953. \url{doi:10.1111/ajps.12358}
+
+        \item Colantone, I., \& Stanig, P. (2019). The surge of economic nationalism in western europe. \textit{Journal of Economic Perspectives}, 33(4), 128–151. \url{doi:10.1257/jep.33.4.128}
+
+        \item DORASZELSKI, U., \& JAUMANDREU, J. (2013). R\&D and productivity: Estimating endogenous productivity. \textit{The Review of Economic Studies}, 80(4), 1338–1383. \url{doi:10.1093/restud/rdt011}
+
+        \item Rodrik, D. (1997). \textit{Has globalization gone too far?} (1st ed.). Washington, DC: Inst. for Internat. Economics. Retrieved from \url{http://bvbr.bib-bvb.de:8991/F?func=service&doc_library=BVB01&local_base=BVB01&doc_number=007780376&sequence=000002&line_number=0001&func_code=DB_RECORDS&service_type=MEDIA}
+
+        \item Ruggie, J. G. (1982). International regimes, transactions, and change: Embedded liberalism in the postwar economic order. \textit{International Organization}, 36(2), 379–415. \url{doi:10.1017/S0020818300018993}
+
+        \item Levinsohn, J., \& Petrin, A. (2003). Estimating production functions using inputs to control for unobservables. \textit{Review of Economic Studies}, 70(2), 317–341. \url{doi:10.1111/1467-937x.00246}
+
+        \item Mattioli, G., Roberts, C., Steinberger, J. K., \& Brown, A. (2020). The political economy of car dependence: A systems of provision approach. \textit{Energy Research \& Social Science}, 66, 101486. \url{doi:10.1016/j.erss.2020.101486}
+
+        \item Olley, G. S., \& Pakes, A. (1992). The dynamics of productivity in the telecommunications equipment industry. \textit{Cambridge, Mass: National Bureau of Economic Research.}
+
+        \item Van Biesebroeck, J. (2003). Productivity dynamics with technology choice: An application to automobile assembly. \textit{The Review of Economic Studies}, 70(1), 167–198. \url{doi:10.1111/1467-937X.00241}
+
+        \item Wooldridge, J. M. (2009). On estimating firm-level production functions using proxy variables to control for unobservables. \textit{Economics Letters}, 104(3), 112–114. \url{doi:10.1016/j.econlet.2009.04.026}
+    \end{enumerate}
+
+\end{document}

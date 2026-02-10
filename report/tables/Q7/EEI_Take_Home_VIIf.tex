@@ -1,0 +1,32 @@
+\begin{table}[H]
+\centering
+\begin{tabular}{lcc}
+\noalign{\smallskip} \hline \hline \noalign{\smallskip}
+& \multicolumn{1}{c} {(1)} & \multicolumn{1}{c} {(2)} \\
+& \multicolumn{1}{c} {OLS} & \multicolumn{1}{c} {2SLS} \\
+\noalign{\smallskip} \hline  \noalign{\smallskip}
+\multicolumn{3}{l}{\emph{Panel A: Impact of China Score on Underprivileged Minority Groups Score}} \\
+\noalign{\smallskip} \noalign{\smallskip}
+China Shock         &      -0.914** &      -0.822** \\
+                    &     (0.361)   &     (0.351)   \\
+\noalign{\smallskip}
+Controls & \checkmark & \checkmark  \\
+NUTS-1 FE & \checkmark & \checkmark \\ 
+Education FE & \checkmark & \checkmark \\ 
+Observations        &         858   &         858   \\
+1-sd IV effect on attitude score&               &      -0.070   \\
+Standardized IV effect on attitude score&               &       0.151   \\
+R$^2$               &      0.083        & 0.083              \\
+\noalign{\smallskip} \hline \noalign{\smallskip}
+\multicolumn{3}{l}{\emph{Panel B: First stage China Shock on China Shock US}} \\
+\noalign{\smallskip} \noalign{\smallskip}
+China Shock Instrument (China-USA)&  &     0.076***\\
+                    &    &  (0.002)   \\
+\noalign{\smallskip}
+Kleibergen-Paap F-statistic &    & 1251.91           \\
+\hline \noalign{\smallskip}
+\multicolumn{3}{l}{\footnotesize{Standard errors in parentheses *** p$<$0.01, ** p$<$0.05, * p$<$0.1}} \\
+\end{tabular}
+\caption{Effect of China Shock on Electoral Support for Advocates of Minority Groups}
+\label{tab:results}
+\end{table}

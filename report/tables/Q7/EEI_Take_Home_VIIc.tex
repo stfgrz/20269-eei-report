@@ -1,0 +1,31 @@
+\begin{table}[H]
+\centering
+\begin{tabular}{lcc}
+\noalign{\smallskip} \hline \hline \noalign{\smallskip}
+& \multicolumn{1}{c} {(1)} & \multicolumn{1}{c} {(2)} \\
+& \multicolumn{1}{c} {OLS} & \multicolumn{1}{c} {2SLS} \\
+\noalign{\smallskip} \hline  \noalign{\smallskip}
+\multicolumn{3}{l}{\emph{Panel A: Impact China Shock on Attitude Score towards Public Green Subsidies}} \\
+\noalign{\smallskip} \noalign{\smallskip}
+China Shock         &       1.592** &       1.483** \\
+                    &     (0.713)   &     (0.680)   \\
+\noalign{\smallskip}
+Controls & \checkmark & \checkmark  \\
+NUTS-1 FE & \checkmark & \checkmark \\ 
+Education FE & \checkmark & \checkmark \\ 
+Observations        &        2414   &        2414   \\
+1-sd IV effect on attitude score&               &       0.126   \\
+Standardized IV effect on attitude score&               &       0.060   \\
+$R^2$                &    0.087       &  0.087             \\
+\noalign{\smallskip} \hline \noalign{\smallskip}
+\multicolumn{3}{l}{\emph{Panel B: First stage China Shock on China Shock US}} \\
+\noalign{\smallskip} \noalign{\smallskip}
+China Shock Instrument (China-USA)&       & 0.075***\\
+                    &    &  (0.002)   \\
+Kleibergen-Paap F-statistic &     & 1251.91          \\
+\hline \noalign{\smallskip}
+\multicolumn{3}{l}{\footnotesize{Standard errors in parentheses *** p$<$0.01, ** p$<$0.05, * p$<$0.1}} \\
+\end{tabular}
+\caption{Effect of China Shock on Public Support for Renewable Energy Subsidies}
+\label{tab:results}
+\end{table}

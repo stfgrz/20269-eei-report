@@ -1,0 +1,38 @@
+\documentclass[]{article}
+\usepackage{adjustbox}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\setlength{\pdfpagewidth}{8.5in} \setlength{\pdfpageheight}{11in}
+\begin{document}
+\begin{table}[htb!]
+\begin{center}
+\caption{Instrumental variables results}
+\label{tab:main_iv}
+    \scalebox{0.85}{
+    \begin{tabular}{lcccccc} \hline
+            & (1) & (2) & (3) & (4) & (5) & (6) \\
+            Dependent Variable: & \multicolumn{2}{c}{Average post-crisis TFP} & Environ (broad) & Green party & Environ & Environ (broad) \\ \hline
+            \vspace{4pt} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} \\
+            Import Shock & 1.383*** & 0.952*** &  &  &  &  \\
+            \vspace{4pt} & \begin{footnotesize}(0.0478)\end{footnotesize} & \begin{footnotesize}(2.171)\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} \\
+            Education (lagged) & -0.962*** & -0.827*** &  &  &  &  \\
+            & \begin{footnotesize}(0.0439)\end{footnotesize} & \begin{footnotesize}(0.0447)\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} \\
+            GDP (lagged) & 1.757*** & 1.744*** &  &  &  &  \\
+            & \begin{footnotesize}(0.0666)\end{footnotesize} & \begin{footnotesize}(0.0673)\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} \\
+            Population (lagged) & 0.0104*** & 0.0155*** &  &  &  &  \\
+            & \begin{footnotesize}(0.0439)\end{footnotesize} & \begin{footnotesize}(0.0447)\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} \\
+            Observations & 2,568 & 2,568 & 63,434 & 63,496 & 63,434 & 63,434 \\
+            Estimator & OLS & 2SLS &  &  &  &  \\
+            Individual controls & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+            Country x year FE & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+            Region FE & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\ \hline  
+            \multicolumn{1}{c}{} & \multicolumn{6}{c}{\textit{First Stage Results}} \\
+            \cmidrule(lr){2-7} 
+            U.S. Imports to China & — & 0.0518*** & &  &  &  \\
+             & & (0.0005) &  &  &  &  \\
+            Kleibergen-Paap F & — &  &  &  &  & \\ \hline
+    \end{tabular}
+}
+\end{center}
+\end{table}
+\end{document}

@@ -1,0 +1,32 @@
+Estimating production functions by OLS can lead to biased coefficient estimates due to simultaneity bias (also known as endogeneity of input choices). Simultaneity bias arises because firms observe their own productivity shocks and adjust input usage in the same period, violating the exogeneity assumption of OLS.
+
+        In a Cobb–Douglas production function setting
+        \[
+        y_{it} = \beta_0 + \beta_L \ell_{it} + \beta_K k_{it} + \omega_{it} + \varepsilon_{it},
+        \]
+        (with \(y\) = output, \(\ell\) = labour input, \(k\) = capital input), the term \(\omega_{it}\) represents a firm’s TFP shock that is observed by the firm (e.g.\ a technology improvement or demand shock) but not by the econometrician. If a positive productivity shock occurs during the year, the firm may respond by hiring additional labour or increasing intermediate inputs within the same year, meaning \(\omega_{it}\) is correlated with \(\ell_{it}\) (and possibly other inputs). Econometrically, this implies the error term is correlated with regressors, leading to biased and inconsistent OLS estimates of the input coefficients. In particular, the OLS‐estimated coefficient on labour is likely biased (often significantly so) because part of the output variation due to the productivity shock is erroneously attributed to labour input or vice versa.
+        
+        Altomonte (2015) notes that OLS results typically mis‐estimate the labour elasticity—for instance, the labour coefficient may be attenuated (biased downward) in OLS when a highly flexible input like materials absorbs much of the shock’s effect, or biased upward if labour itself adjusts strongly to unobserved productivity. The capital coefficient can likewise be biased (often downward in OLS estimates, due to productive firms tending to accumulate more capital and less productive firms exiting). These biases underscore the need for more robust estimation techniques.
+        
+        Various methods have been developed to address simultaneity by controlling for the unobserved productivity term \(\omega_{it}\). A straightforward panel‐data approach is to include firm fixed effects, which would control for a time‐invariant productivity level specific to each firm. However, firm fixed‐effects only use within‐firm variation over time (sacrificing the informative cross‐firm variation) and assume the productivity shock is constant over time. This assumption is invalid given evidence that firm productivity varies with business cycle phases. Thus, fixed‐effects OLS is not fully satisfactory for TFP estimation. Instead, proxy‐variable (control‐function) methods are preferred to obtain consistent production function estimates.
+        
+        \subsubsection*{Levinsohn and Petrin (2003) method (LP)}
+        
+        Levinsohn and Petrin propose a semi-parametric estimator that uses a freely variable intermediate input (e.g.\ materials or energy) as a proxy for the unobserved productivity shock. The key assumption is that a firm’s demand for intermediate inputs \(m_{it}\) is monotonically increasing in the productivity shock \(\omega_{it}\) (for a given capital stock \(k_{it}\)). Intuitively, a more productive firm (higher \(\omega\)) will use more materials at any given capital level, so one can infer the productivity state from observed materials usage. LP’s procedure has two stages:
+        
+        \begin{enumerate}
+          \item In the first stage, output is expressed as
+          \[
+            y_{it} = \beta_L \ell_{it} + \varphi_t(k_{it},m_{it}) + \varepsilon_{it},
+          \]
+          where \(\varphi_t(\cdot)\) is an unknown function capturing the combined effect of capital, intermediates, and productivity. By approximating \(\varphi_t\) (e.g.\ with a polynomial in \(k\) and \(m\)), one can control for \(\omega_{it}\) and obtain a consistent estimate of the labour coefficient \(\beta_L\).
+          \item In the second stage, LP uses moment conditions (with lagged inputs as instruments) to identify the capital coefficient \(\beta_K\) once the productivity term has been accounted for.
+        \end{enumerate}
+        
+        Through this control-function approach, the LP estimator corrects the OLS bias by explicitly controlling for the unobserved productivity term as a function of observables, yielding consistent estimates of the labour and capital elasticities of output.
+        
+        \subsubsection*{Wooldridge (2009) method (WRDG)}
+        
+        Wooldridge developed an integrated GMM approach to estimate production functions with proxy variables in a single step, rather than the multi-step procedure of LP or the earlier Olley–Pakes method. The Wooldridge method reformulates the proxy approach as a system of equations and applies system generalized method of moments (GMM) with appropriate instruments for each equation. In essence, Wooldridge’s estimator uses the same idea of controlling for unobserved productivity (using proxies like intermediate inputs or investment) but jointly estimates all production function parameters in one go, improving efficiency and simplifying inference. By specifying different instruments for the labour-input equation and the capital-input equation within a GMM system, the WRDG method achieves identification of both coefficients while controlling for \(\omega_{it}\) throughout. This one-step control-function approach yields coefficients for labour and capital that are comparable to those from LP (both aim to consistently estimate the true input elasticities), and any differences between WRDG and LP estimates are usually small and due to technical differences in implementation rather than fundamental inconsistencies.
+        
+        In summary, both the Wooldridge and LP methods attempt to mitigate simultaneity bias by using observed proxies (inputs that react to productivity shocks) to purge the correlation between inputs and the unobserved shock, thus providing more reliable estimates of \(\beta_L\) and \(\beta_K\) than OLS.

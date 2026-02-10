@@ -1,0 +1,37 @@
+\documentclass[]{article}
+\usepackage{adjustbox}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\setlength{\pdfpagewidth}{8.5in} \setlength{\pdfpageheight}{11in}
+\begin{document}
+\begin{table}[htb!]
+\begin{center}
+\caption{Instrumental variables results}
+\label{tab:main_iv}
+    \scalebox{0.85}{
+    \begin{tabular}{lcc} \hline
+            & (1) & (2) \\
+            Dependent Variable: & \multicolumn{2}{c}{Average post-crisis TFP} \\ \hline
+            \vspace{4pt} & \begin{footnotesize}\end{footnotesize} & \begin{footnotesize}\end{footnotesize} \\
+            Import Shock & 1.222*** & 1.2322***  \\
+            \vspace{4pt} & \begin{footnotesize}(0.0787)\end{footnotesize} & \begin{footnotesize}(0.0362)\end{footnotesize} \\
+            Education (lagged) & -0.962*** & -0.827***  \\
+            & \begin{footnotesize}(0.0439)\end{footnotesize} & \begin{footnotesize}(0.0447)\end{footnotesize} \\
+            GDP (lagged) & 1.757*** & 1.744***  \\
+            & \begin{footnotesize}(0.0666)\end{footnotesize} & \begin{footnotesize}(0.0673)\end{footnotesize} \\
+            Population (lagged) & 0.0104*** & 0.0155***\\
+            & \begin{footnotesize}(0.0439)\end{footnotesize} & \begin{footnotesize}(0.0447)\end{footnotesize} \\
+            Observations & 2,568 & 2,568\\
+            Estimator & OLS & 2SLS \\
+            Country \& Year FE & \checkmark & \checkmark\\
+            Industry FE & \checkmark & \checkmark\\ \hline  
+            \multicolumn{1}{c}{} & \multicolumn{2}{c}{\textit{First Stage Results}} \\
+            \cmidrule(lr){2-3} 
+            U.S. Imports to China & — & 0.0518***\\
+             & & (0.0005)\\
+            Kleibergen-Paap F & — &  &\\ \hline
+    \end{tabular}
+}
+\end{center}
+\end{table}
+\end{document}

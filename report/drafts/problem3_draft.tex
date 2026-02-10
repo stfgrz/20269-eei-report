@@ -1,0 +1,83 @@
+Using revenue (i.e. sales) instead of value added when estimating a Cobb-Douglas production function can indeed change the results---and for fairly fundamental reasons connected to both the structure of the model and the nature of the data. The differences arise in OLS, Levinsohn \& Petrin (LP), or Wooldridge-type estimations, though the underlying reasons are easiest to see by thinking about the assumptions behind the production function itself.
+
+\bigskip
+
+    \subsection{The Core Issue: ``Physical Output'' vs. ``Revenue''}
+    \label{sec:physical-output-vs-revenue}
+
+    A standard Cobb-Douglas production function is typically written in {physical} quantities:
+    \[
+    Q_{it} \;=\; A_{it}\,K_{it}^{\beta_{k}}\,L_{it}^{\beta_{\ell}}\,M_{it}^{\beta_{m}},
+    \]
+    where \(Q_{it}\) is the firm's physical output, \(K\) is capital, \(L\) is labour, \(M\) is intermediate inputs (e.g.\ materials), and \(A_{it}\) is firm-level TFP (the ``Solow residual''). In empirical work, however, economists often use monetary measures (because of data constraints) instead of true physical output. That is:
+
+    \begin{itemize}
+        \item \textbf{Using revenues (sales) as a proxy for output:}
+        \[
+          \ln(\text{revenue}_{it}) 
+          \;\longrightarrow\;
+          \ln\bigl(P_{it}\,Q_{it}\bigr)
+          \;=\;\ln P_{it} + \ln Q_{it}.
+        \]
+        Any variation in firm-level prices \(P_{it}\) is now {bundled together} with the true physical quantity \(Q_{it}\). As a result, an unobserved price shock (for example, a firm temporarily charging a higher price for reasons unrelated to higher physical productivity) will appear as higher ``output'' in the regression, even though physically it may not be more productive.
+    
+        \item \textbf{Using value added as a proxy for output:}
+        \[
+          \text{value\_added} \;=\; \text{revenue} \;-\; \text{intermediate input costs (materials)},
+        \]
+        then taking logs. Here, you remove the cost of materials from the left-hand side, effectively focusing on the contribution of labour and capital to the firm's net output. But price variation still matters: the value-added figure is still in monetary terms, so if the firm faces or sets a higher price, that may inflate the measured ``value added'' relative to a physically comparable scenario.
+    \end{itemize}
+    
+    In both cases, if all firms faced the {same} prices and price changes, or if prices were constant over time, it would not matter so much---revenue would track physical output up to a common factor. However, in reality (especially in micro-level data), prices vary across firms and time for many reasons. This causes biases when the empirical specification implicitly assumes that {log output} means only \(\ln Q_{it}\), not \(\ln P_{it} + \ln Q_{it}\).
+
+\bigskip
+
+    \subsection*{Why ``Revenue-Based TFP'' Can Differ from ``Value-Added TFP''}
+    \label{sec:revenue-vs-value-added-tfp}
+
+        \paragraph{Intermediate Inputs}
+
+            In a value-added framework, you subtract materials (and sometimes other intermediate inputs) from total sales, so the dependent variable is ``value added'' rather than ``total revenues.'' In a full revenue-based framework, you keep materials on the left side and also include them among the regressors on the right (capital, labour, and materials).
+
+        \paragraph{Identification of the Materials Coefficient}
+
+            If you {subtract} intermediate inputs from revenue (using a ``value-added'' approach), you typically cannot then separately identify the coefficient on materials in the production function (because you have effectively removed it from the left-hand side). Conversely, in a revenue-based approach (including Levinsohn-Petrin's original setting with ``revenue'' as the dependent variable), you estimate a coefficient on materials \(\beta_m\).
+
+        \paragraph{Sensitivity to Price Heterogeneity}
+
+            A revenue-based production function is more exposed to biases from heterogeneity in prices or markups across firms. If a firm simply charges a higher price, it will look as though it has ``higher output'' in logs and thus higher TFP---even though physically it may not be more productive. Using value added will still suffer from price issues on the {final} output price (because value added is still in monetary units), but at least it is net of the firm's intermediate-input spending. If large input purchases also reflect high input prices, that can somewhat offset differences.
+
+        \paragraph{Levinsohn \& Petrin and Wooldridge}
+
+            The main {semi-parametric} routines (e.g.\ Levinsohn-Petrin, or the Wooldridge 2009 approach) can be done on {either} total revenue or value added. In \texttt{STATA}'s \texttt{levpet} or related routines, for instance, you can specify \texttt{revenue} to get a revenue-based approach or leave it out to get a value-added specification. The difference is not in the logic of controlling for unobserved productivity via a proxy variable (materials or investment) but rather in how you define the dependent variable.
+
+    
+
+    \subsection*{Practical Implications}
+    
+        \begin{itemize}
+          \item \textbf{Estimation of Production Coefficients} \\
+          OLS, LP, or Wooldridge can all be run on either revenue or value added. The difference is that the {estimated coefficients} (and therefore the implied TFP measures) will often differ substantially between a ``revenue-based'' approach and a ``value-added-based'' approach---especially in industries or periods with more price dispersion.
+        
+          \item \textbf{Bias from Unobserved Price Variation} \\
+          If a firm's inputs {respond} to unobserved productivity but also to firm-level price (or demand) shocks, then measuring output via revenue can cause simultaneity biases that are {not} just about unobserved productivity \(\omega\). They also reflect unobserved \(\ln P\). Value added can somewhat lessen that problem by removing part of the pass-through from intermediate input prices, but it does not completely eliminate price-based issues on the final output side.
+        
+          \item \textbf{Interpretation of the Estimated TFP}
+          \begin{itemize}
+            \item With {value added}, you are closer to the ``true'' TFP concept if your main interest is how capital and labour drive net output.
+            \item With {revenues}, you get a TFP measure that can conflate quantity-based productivity with firm-level markup or demand advantages. Sometimes researchers {want} that measure if they are specifically interested in revenue productivity. But for classic ``pure technology'' or quantity-based TFP, it can be misleading.
+          \end{itemize}
+        \end{itemize}
+
+    \subsection*{Conclusion}
+    \label{sec:summary}
+
+        \begin{enumerate}
+          \item \textbf{Intermediate Inputs:} Value added strips out materials from the output measure, which changes both the coefficients and the interpretation.
+        
+          \item \textbf{Price or Markup Differences:} Measuring output in revenue terms means you cannot separate purely technological shocks from price or demand shocks. Value added also remains in monetary units but is somewhat less sensitive than total revenue to intermediate-input price movements.
+        
+          \item \textbf{Cobb-Douglas Assumptions:} The standard model posits a relationship in physical quantities. If you move to a revenue-based measure, you implicitly deviate from that assumption whenever firm-specific prices vary.
+        \end{enumerate}
+        
+        Consequently, if the theoretical goal is to estimate a {physical} production function (i.e., how many units of output are produced for given inputs), then using revenues or value added can lead to biased or at least {different} estimates, precisely because those monetary measures still carry price-related information. This is true whether you are using OLS, Levinsohn \& Petrin, or the Wooldridge approach. The specific {semi-parametric} method just helps control for the simultaneity of inputs and productivity---{not} for unobserved price (demand) shocks. That explains why, in practice, results differ when you switch between a ``revenues'' specification and a ``value-added'' specification.
