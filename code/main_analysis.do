@@ -181,7 +181,7 @@ gen TFP_OLS_29= exp(ln_TFP_OLS_29)
 
 ** sector 13 (Textiles)
 
-xi: prodest ln_real_VA if sector==13, met(wrdg) free(ln_L) proxy(ln_real_M) state(ln_real_K) va
+xi: prodest ln_real_VA if sector==13, met(wrdg) free(ln_L) proxy(ln_real_M) state(ln_real_K) control(i.country) va
 predict ln_TFP_WRDG_13, resid
 
 gen TFP_WRDG_13=exp(ln_TFP_WRDG_13)
@@ -190,7 +190,7 @@ gen TFP_WRDG_13=exp(ln_TFP_WRDG_13)
 
 ** sector 29 (Automotive)
 
-xi: prodest ln_real_VA if sector==29, met(wrdg) free(ln_L) proxy(ln_real_M) state(ln_real_K) va
+xi: prodest ln_real_VA if sector==29, met(wrdg) free(ln_L) proxy(ln_real_M) state(ln_real_K) control(i.country) va
 predict ln_TFP_WRDG_29, resid
 
 gen TFP_WRDG_29=exp(ln_TFP_WRDG_29)
@@ -444,8 +444,8 @@ restore
 clear all 
 use "$intermediate/part_I_cleaned_sample.dta", replace
 
-sort sector year
-by sector year: cumul TFP_LP, generate(cum_TFP_LP)
+sort country sector year
+by country sector year: cumul TFP_LP, generate(cum_TFP_LP)
 gen rhs_LP=log(1- cum_TFP_LP)
 
 keep if year <= 2015 & year >= 2006
@@ -455,7 +455,7 @@ preserve
 keep if country == "France"
 
 qui reg rhs_LP ln_TFP_LP if sector== 13
-outreg2 using "$tables/Pareto_France.tex", append title("Pareto Distribution (France)") ctitle("Average `s'")
+outreg2 using "$tables/Pareto_France.tex", replace title("Pareto Distribution (France)") ctitle("Average")
 qui reg rhs_LP ln_TFP_LP if sector== 13 & year==2006
 outreg2 using "$tables/Pareto_France.tex", append title("Pareto Distribution (France)") ctitle("2006")
 qui reg rhs_LP ln_TFP_LP if sector==13 & year==2015
@@ -468,7 +468,7 @@ preserve
 keep if country == "Spain"
 
 qui reg rhs_LP ln_TFP_LP if sector==13
-outreg2 using "$tables/Pareto_Spain.tex", append title("Pareto Distribution (Spain)") ctitle("Average")
+outreg2 using "$tables/Pareto_Spain.tex", replace title("Pareto Distribution (Spain)") ctitle("Average")
 qui reg rhs_LP ln_TFP_LP if sector==13 & year==2006
 outreg2 using "$tables/Pareto_Spain.tex", append title("Pareto Distribution (Spain)") ctitle("2006")
 qui reg rhs_LP ln_TFP_LP if sector==13 & year==2015
@@ -510,7 +510,11 @@ use "https://raw.githubusercontent.com/stfgrz/20269-eei-report/b0e60e03a483219f9
 
 sort year country nace
 
+<<<<<<< Updated upstream
 merge 1:m year country nace using "$intermediate/weights_pre.dta"
+=======
+merge 1:m year country nace using "$processed/weights_pre.dta"
+>>>>>>> Stashed changes
 
 egen panel_id = group(country nace nuts2)
 xtset panel_id year
@@ -532,7 +536,11 @@ gen country = "USA"
 
 sort year country nace
 
+<<<<<<< Updated upstream
 merge 1:m year nace using "$intermediate/weights_pre.dta"
+=======
+merge 1:m year nace using "$processed/weights_pre.dta"
+>>>>>>> Stashed changes
 
 egen panel_id_us = group (nace nuts2)
 xtset panel_id_us year
@@ -573,7 +581,11 @@ save "$intermediate/collapsedimpshock_us.dta", replace
 
 use "$intermediate/collapsedimpshock.dta", clear
 
+<<<<<<< Updated upstream
 merge 1:1 NUTS_ID using "$intermediate/collapsedimpshock_us.dta"
+=======
+merge 1:1 NUTS_ID using "$processed/collapsedimpshock_us.dta"
+>>>>>>> Stashed changes
 drop _merge
 
 save "$intermediate/sum_china_shock_merged.dta", replace
@@ -696,7 +708,11 @@ rename country_str country
 rename nuts_code nuts2
 keep nuts2 nace2_2_group year tfp avg_tfp avg_wage edu_lag3-pop_lag3 country
 
+<<<<<<< Updated upstream
 merge m:1 nuts2 using "$intermediate/sum_china_shock_merged.dta"
+=======
+merge m:1 nuts2 using "$processed/sum_china_shock_merged.dta"
+>>>>>>> Stashed changes
 format nuts2 %-10s
 drop if _merge==1
 drop _merge
@@ -717,17 +733,36 @@ save "$intermediate/Q6.dta", replace
 
 * run OLS regression for average TFP
 
+<<<<<<< Updated upstream
 use "$intermediate/Q6.dta", clear
+=======
+use "$processed/Q6.dta", clear
+
+* Collapse to a true cross-section: one observation per nuts2 × nace
+* The dependent variables (avg_tfp, avg_wage) are already time-invariant averages,
+* so keeping the panel structure would be pseudo-replication.
+collapse (mean) avg_tfp avg_wage sum_china_shock sum_china_shock_us ///
+    edu_lag3 gdp_lag3 pop_lag3, by(nuts2 country nace2_2_group)
+
+label variable avg_tfp "Average post-crisis TFP"
+label variable avg_wage "Average post-crisis wage"
+label variable sum_china_shock "Import Shock"
+label variable sum_china_shock_us "U.S. imports from China"
+label variable edu_lag3 "Education (lagged)"
+label variable gdp_lag3 "GDP (lagged)"
+label variable pop_lag3 "Population (lagged)"
+
+>>>>>>> Stashed changes
 gen dummy = 1
 gen y = runiform()
-reg y if dummy == 1 // blank model
+reg y if dummy == 1 // blank model for table formatting
 eststo m1
 generate x = runiform()
-reg x if dummy == 1  // another blank model
+reg x if dummy == 1  // another blank model for table formatting
 eststo m3
 
-* OLS 
-xi: regress avg_tfp sum_china_shock edu_lag3-pop_lag3 i.country i.year i.nace2_2_group, robust
+* OLS (cross-sectional: no year FE needed)
+xi: regress avg_tfp sum_china_shock edu_lag3-pop_lag3 i.country i.nace2_2_group, robust
 eststo OLS_tfp: 
 scalar R2 = e(r2)
 scalar R2_a = e(r2_a)
@@ -753,14 +788,14 @@ scalar list ratio_OLS
 /* (b) To deal with endogeneity issues, use the instrumental variable you have built before, based on changes in Chinese imports to the USA, and run again the regressions as in a). Do you see any changes in the coefficient? */
 
 * 2SLS
-xi: reg sum_china_shock sum_china_shock_us edu_lag3-pop_lag3 i.country i.year i.nace2_2_group, robust
+xi: reg sum_china_shock sum_china_shock_us edu_lag3-pop_lag3 i.country i.nace2_2_group, robust
 eststo First_Stage_tfp
 
-xi: ivreg2 avg_tfp (sum_china_shock = sum_china_shock_us) edu_lag3-pop_lag3 i.country i.year i.nace2_2_group, first robust
+xi: ivreg2 avg_tfp (sum_china_shock = sum_china_shock_us) edu_lag3-pop_lag3 i.country i.nace2_2_group, first robust
 scalar F_1st = e(widstat)
 estadd scalar F_1st
 
-xi: ivregress 2sls avg_tfp (sum_china_shock = sum_china_shock_us) edu_lag3-pop_lag3 i.country i.year i.nace2_2_group, robust
+xi: ivregress 2sls avg_tfp (sum_china_shock = sum_china_shock_us) edu_lag3-pop_lag3 i.country i.nace2_2_group, robust
 eststo IV_tfp
 
 scalar R2 = e(r2)
@@ -813,7 +848,7 @@ scalar list ratio_IV
 
 * run OLS and IV regressions for wage
 
-xi: reg avg_wage sum_china_shock edu_lag3-pop_lag3 i.country i.year i.nace2_2_group, robust
+xi: reg avg_wage sum_china_shock edu_lag3-pop_lag3 i.country i.nace2_2_group, robust
 eststo OLS_wage
 scalar R2 = e(r2)
 scalar R2_a = e(r2_a)
@@ -837,14 +872,14 @@ estadd scalar F_ols
 
 * 2SLS 
 
-xi: reg sum_china_shock sum_china_shock_us edu_lag3-pop_lag3 i.country i.year i.nace2_2_group, robust
+xi: reg sum_china_shock sum_china_shock_us edu_lag3-pop_lag3 i.country i.nace2_2_group, robust
 eststo First_Stage_wage
 
-xi: ivreg2 avg_wage (sum_china_shock = sum_china_shock_us) edu_lag3-pop_lag3 i.country i.year i.nace2_2_group, first robust
+xi: ivreg2 avg_wage (sum_china_shock = sum_china_shock_us) edu_lag3-pop_lag3 i.country i.nace2_2_group, first robust
 scalar F_1st = e(widstat)
 estadd scalar F_1st
 
-xi: ivregress 2sls avg_wage (sum_china_shock = sum_china_shock_us) edu_lag3-pop_lag3 i.country i.year i.nace2_2_group, robust
+xi: ivregress 2sls avg_wage (sum_china_shock = sum_china_shock_us) edu_lag3-pop_lag3 i.country i.nace2_2_group, robust
 eststo IV_wage
 
 scalar R2 = e(r2)
@@ -872,7 +907,7 @@ label variable inter_term "Interaction term"
 
 * run OLS and IV regressions for wage with additional control and interaction
 
-xi: reg avg_wage sum_china_shock avg_tfp inter_term edu_lag3-pop_lag3 i.country i.nace2_2_group i.year, robust
+xi: reg avg_wage sum_china_shock avg_tfp inter_term edu_lag3-pop_lag3 i.country i.nace2_2_group, robust
 eststo OLS_wage_int
 scalar R2 = e(r2)
 scalar R2_a = e(r2_a)
@@ -894,14 +929,20 @@ estadd scalar F_ols
 	scalar ratio_OLS_wage_int=abs(effect_OLS_wage_int/mean_avg_wage)
 	scalar list ratio_OLS_wage_int
 
-xi: reg sum_china_shock sum_china_shock_us edu_lag3-pop_lag3 i.country i.year i.nace2_2_group, robust
+xi: reg sum_china_shock sum_china_shock_us edu_lag3-pop_lag3 i.country i.nace2_2_group, robust
 eststo First_Stage_wage_int
 
-xi: ivreg2 avg_wage (sum_china_shock = sum_china_shock_us) avg_tfp inter_term edu_lag3-pop_lag3 i.country i.nace2_2_group i.year, first robust
+* NOTE: inter_term = avg_tfp * sum_china_shock contains the endogenous variable,
+* so it must also be instrumented. We use avg_tfp * sum_china_shock_us as the
+* additional excluded instrument.
+gen inter_iv = avg_tfp * sum_china_shock_us
+label variable inter_iv "TFP $\times$ China Shock IV"
+
+xi: ivreg2 avg_wage (sum_china_shock inter_term = sum_china_shock_us inter_iv) avg_tfp edu_lag3-pop_lag3 i.country i.nace2_2_group, first robust
 scalar F_1st= e(widstat)
 estadd scalar F_1st
 
-xi: ivregress 2sls avg_wage (sum_china_shock = sum_china_shock_us) avg_tfp inter_term edu_lag3-pop_lag3 i.country i.year i.nace2_2_group, robust
+xi: ivregress 2sls avg_wage (sum_china_shock inter_term = sum_china_shock_us inter_iv) avg_tfp edu_lag3-pop_lag3 i.country i.nace2_2_group, robust
 eststo IV_wage_int
 
 scalar R2 = e(r2)
@@ -982,11 +1023,19 @@ use "$regional/ESS8e02_3", clear
 	
 	save "$intermediate/ESS8_Italy_cleaned.dta", replace
 
+<<<<<<< Updated upstream
 merge m:1 nuts2 using "$intermediate/sum_china_shock_merged.dta", keep(match)
 
 	drop _merge
 
 save "$intermediate/Q7ab.dta", replace
+=======
+merge m:1 nuts2 using "$processed/sum_china_shock_merged.dta", keep(match)
+
+	drop _merge
+
+save "$processed/Q7ab.dta", replace
+>>>>>>> Stashed changes
 	
 sort nuts2
 	
@@ -1008,9 +1057,13 @@ estadd scalar F_ols
 	
 /* (c) To correct for endogeneity issues, use the instrumental variable you have built before, based on changes in Chinese imports to the USA. Discuss the rationale for using this instrumental variable. What happens when you instrument the China shock in the previous regression? Comment both on first-stage and on second-stage results. */
 
+<<<<<<< Updated upstream
 merge m:1 nuts2 using "$intermediate/sum_china_shock_merged.dta", keep(match)
 
 drop _merge
+=======
+* NOTE: sum_china_shock_us already available from the merge at line 980, no second merge needed
+>>>>>>> Stashed changes
 	
 xi: regress sum_china_shock sum_china_shock_us gndr agea i.edlvdit i.nuts1 [pweight=pspwght], cluster(nuts2)
 eststo First_Stage_IV_attitude
@@ -1110,7 +1163,11 @@ replace party_cmp = 32460 if prtvtbit == 5  // Scelta Civica
 replace party_cmp = 32630 if prtvtbit == 10  // Fratelli d'Italia
 replace party_cmp = 32021 if prtvtbit == 3  // Rivoluzione Civile (Ingroia)
 
+<<<<<<< Updated upstream
 merge m:1 party_cmp using "$intermediate/MP_cleaned.dta", keep(match)
+=======
+merge m:1 party_cmp using "$processed/MP_cleaned.dta", keep(match)
+>>>>>>> Stashed changes
 
 drop _merge
 
@@ -1126,7 +1183,11 @@ save "$intermediate/Q7ef.dta", replace
 
 	with z being the variable for the "very general favorable references to underprivileged minority groups". Cluster the standard errors by Nuts region level 2. Be sure to use survey weights in the regressions. Comment. */
 	
+<<<<<<< Updated upstream
 use "$intermediate/Q7ef.dta", replace
+=======
+use "$processed/Q7ef.dta", clear
+>>>>>>> Stashed changes
 
 gen z_pc = per705
 	
