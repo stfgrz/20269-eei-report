@@ -663,7 +663,7 @@
 
     \input{tables/Q6/EEI_Take_Home_VI_bb}
 
-        Column 1 of Table 6-1 presents the results from running a simple regression of the post-crisis average TFP against the region-level China shock, controlling for 3-year lags of education, GDP and population. For the purpose of the analysis, country-year and industry-specific fixed effects were included. The main result is that the Import shock has a positive and statistically significant effect on average regional productivity.
+        Column 1 of Table \ref{tab:tfp_results} presents the results from running a simple regression of the post-crisis average TFP against the region-level China shock, controlling for 3-year lags of education, GDP and population. For the purpose of the analysis, country-year and industry-specific fixed effects were included. The main result is that the Import shock has a positive and statistically significant effect on average regional productivity.
 
         However, the estimated coefficient may be affected by potential endogeneity. The main source of endogeneity here may be the presence of reverse causality: indeed, it could be that highly productive regions are more exposed to international trade, and will probably have a higher demand for Chinese inputs. This means that more productivity will also entail more exposure to the China shock, introducing an upward bias to the estimated coefficient.
 
@@ -671,16 +671,16 @@
 
         The potential endogeneity can be addressed by adopting an IV approach, by instrumenting the import shock using change in imports from China to the U.S. This allows one to isolate the supply-side shock from any domestic demand confounding factor that is causing bias in the coefficient, such as that of the highly productive domestic firms. 
         
-        Column 2 of Table 6-1 reports the results of this 2SLS estimation. We can see that the estimated coefficient is now lower, and still significant. This indicates that the IV approach compensates for the previously hinted upward bias.
+        Column 2 of Table \ref{tab:tfp_results} reports the results of this 2SLS estimation. We can see that the estimated coefficient is now lower, and still significant. This indicates that the IV approach compensates for the previously hinted upward bias.
         
         One remark must be made on possible remaining concerns regarding the validity of the exclusion restriction. Indeed, using the IV approach can be a valid strategy if there are no correlated domestic and supply shock between the US and European countries that simultaneously have an impact on imports in both areas, while still affecting productivity. Further robustness checks must be carried out in order to address these concerns.
 
 
     \subsection{Effects of Import Shock on Average Regional Wages (OLS and IV)}
 
-        Columns 1 and 2 in Table 6-2 present the results of running the OLS and 2SLS regressions of post-crisis average wages against the region-level China shock, similarly to the previous points. We notice that the coefficients are in both cases positive and statistically significant, indicating that the increased exposure to Chinese imports may have had positive effects on average regional wages. Once again, when the Import shock is instrumented by using the US one, an upward bias is corrected for.
+        Columns 1 and 2 in Table \ref{tab:wages} present the results of running the OLS and 2SLS regressions of post-crisis average wages against the region-level China shock, similarly to the previous points. We notice that the coefficients are in both cases positive and statistically significant, indicating that the increased exposure to Chinese imports may have had positive effects on average regional wages. Once again, when the Import shock is instrumented by using the US one, an upward bias is corrected for.
 
-        In Columns 3 and 4, two controls are added: the post-crisis average TFP and an interaction term between average TFP and China Shock. As a result, the estimated coefficient becomes negative, statistically significant in both the OLS and the 2SLS cases. This signals the presence of some omitted variables being addressed by the added controls. 
+        In Columns 3 and 4, two controls are added: the post-crisis average TFP and an interaction term between average TFP and China Shock (\texttt{inter\_term = avg\_tfp * sum\_china\_shock}). As a result, the estimated coefficient becomes negative, statistically significant in both the OLS and the 2SLS cases. This signals the presence of some omitted variables being addressed by the added controls. 
 
         In both cases, some heterogeneous effects are taken into account.
         \begin{itemize}
@@ -748,7 +748,7 @@
 
             \paragraph{First- and Second-Stage IV (2SLS) Regression Results}
 
-                In practice, we run both the first- and second-stage regressions to verify that the IV is strong and that the causal effect is reasonable and in line with theoretical expectations. Performing the first-stage regression, we obtain a positive ($\sim 0.075$) and strongly statistically significant coefficient at any conventional significance level (p-value < 0.001). Furthermore, we observe that the Kleibergen-Paap F-statistic is well above 10 ($\sim 1251.91)$, thus satisfying a commonly used rule of thumb that indicates the instrument is strong, or equivalently, that it has sufficient predictive power for the endogenous regressor. \\ Moving to the second stage, we immediately recognize that the IV-estimated causal effect coefficient ($\sim 1.483$) is slightly below the one obtained through the OLS regression ($\sim 1.592$), suggesting a mild upward bias in the latter estimate. Perhaps more importantly, the result of the IV regression allows us to conclude that the \texttt{China\_Shock} unequivocally pushes people toward more opposition to subsidizing renewables. Precisely, a one standard deviation increase in the \texttt{China\_Shock} (standard deviation $\sim 0.085$) leads to an estimated $0.085 \times 1.483 \sim 0.126$ increase in the attitude score used as the dependent variable. A more direct interpretation is given by the "Standardized IV effect on attitude score" value, which basically says that a 1-sd increase in the \texttt{China\_Shock} raises the value of \texttt{sbsrnen} by $\sim 6\%$ of its average level. As a side note, we speculate that the \texttt{sbsrnen} score may be regarded as a proxy for individuals' opinions concerning green policies more broadly.
+                In practice, we run both the first- and second-stage regressions (see Table \ref{tab:results_subsidy}) to verify that the IV is strong and that the causal effect is reasonable and in line with theoretical expectations. Performing the first-stage regression, we obtain a positive ($\sim 0.075$) and strongly statistically significant coefficient at any conventional significance level (p-value < 0.001). Furthermore, we observe that the Kleibergen-Paap F-statistic is well above 10 ($\sim 1251.91)$, thus satisfying a commonly used rule of thumb that indicates the instrument is strong, or equivalently, that it has sufficient predictive power for the endogenous regressor. \\ Moving to the second stage, we immediately recognize that the IV-estimated causal effect coefficient ($\sim 1.483$) is slightly below the one obtained through the OLS regression ($\sim 1.592$), suggesting a mild upward bias in the latter estimate. Perhaps more importantly, the result of the IV regression allows us to conclude that the \texttt{China\_Shock} unequivocally pushes people toward more opposition to subsidizing renewables. Precisely, a one standard deviation increase in the \texttt{China\_Shock} (standard deviation $\sim 0.085$) leads to an estimated $0.085 \times 1.483 \sim 0.126$ increase in the attitude score used as the dependent variable. A more direct interpretation is given by the "Standardized IV effect on attitude score" value, which basically says that a 1-sd increase in the \texttt{China\_Shock} raises the value of \texttt{sbsrnen} by $\sim 6\%$ of its average level. As a side note, we speculate that the \texttt{sbsrnen} score may be regarded as a proxy for individuals' opinions concerning green policies more broadly.
 
         \subsubsection{Coefficient Sign: Theoretical Interpretations and Mechanisms}
 
@@ -776,7 +776,7 @@
 
         \subsubsection{IV Estimates and Substantive Effect}
 
-            Controlling for demographic characteristics and NUTS-1 region dummies, we can deduce from the results presented in Table 7-2 that a one standard deviation increase in regional exposure to the \texttt{China\_Shock} leads to a $0.07$ point decrease in the log-transformed \texttt{minority\_score} of support for parties that favor underprivileged minority groups. In other words, the effect amounts to a $15.1\%$ decline in the \texttt{minority\_score} relative to the average support level.
+            Controlling for demographic characteristics and NUTS-1 region dummies, we can deduce from the results presented in Table \ref{tab:results_minority} that a one standard deviation increase in regional exposure to the \texttt{China\_Shock} leads to a $0.07$ point decrease in the log-transformed \texttt{minority\_score} of support for parties that favor underprivileged minority groups. In other words, the effect amounts to a $15.1\%$ decline in the \texttt{minority\_score} relative to the average support level.
 
         \subsubsection{Results' Interpretation}
 
@@ -798,6 +798,28 @@
             \paragraph{Implications for Redistribution and Political Strategy}
 
                 Although we cannot observe where voters in highly exposed regions reallocated their support — whether toward the centre-right (People of Freedom) or centre-left (Democratic Party), just to mention the most successful centre-right and centre-left parties at the 2013 elections  — our result may indicate that economic insecurity alone is not sufficient to generate support for redistribution-focused parties, and thus that electoral campaigns built around redistribution policies might not be that attractive to voters living in areas "losing to globalization" if not accompanied by a broader, coherent political platform properly addressing issues especially relevant for typically highly traditional, severely exposed constituencies, such as identity and immigration.
+
+    \subsection{Globalization and Cultural Backlash (VII.f \& VII.g)}
+
+        \subsubsection{Impact of China Shock on Support for Minority Rights (VII.f)}
+
+            In this final analysis, we examine whether exposure to the China shock also correlates with cultural attitudes, specifically the support for parties that advocate for underprivileged minority groups. We regress the \texttt{minority\_score} (a log-transformed measure of favorable references to minorities in the party's manifesto) against the regional China shock.
+
+            \input{tables/Q7/EEI_Take_Home_VIIf}
+
+            Table \ref{tab:results_minority} compares the OLS (Column 1) and IV (Column 2) estimates. The OLS coefficient is negative and significant, suggesting that regions more exposed to Chinese import competition tend to vote for parties with less favorable stances towards minorities.
+
+            The 2SLS results (Column 2) confirm and strengthen this finding. The estimated coefficient is negative and statistically significant. Specifically, a one standard deviation increase in the China shock leads to a significant decrease in the \texttt{minority\_score} of the voted party. This implies a causal link: economic distress caused by globalization shifts voter support away from parties that champion minority rights and towards those with more exclusionary or nationalist platforms.
+
+        \subsubsection{Economic vs. Cultural Determinants (VII.g)}
+
+            The results from point (f) (minority rights) and point (c) (renewable subsidies) collectively paint a picture of the "globalization backlash." We find that the same economic shock—exposure to Chinese import competition—drives both:
+            \begin{enumerate}
+                \item \textbf{Policy Backlash}: Reduced support for public goods like renewable energy subsidies (as seen in VII.c).
+                \item \textbf{Cultural Backlash}: Reduced support for minority rights (as seen in VII.f).
+            \end{enumerate}
+
+            This suggests that the economic grievances stemming from globalization (job losses, wage stagnation) are not just channeled into economic demands (like protectionism) but spill over into cultural and social domains. Voters in left-behind regions may adopt a "bundled" rejection of the liberal cosmopolitan agenda, perceiving environmentalism and minority rights as elite concerns that come at their expense. This aligns with the "cultural backlash" theory (Inglehart \& Norris, 2016), where economic insecurity seeks a scapegoat in "others" (minorities) and rejects the post-materialist values (environmentalism) of the winners of globalization. Thus, economic determinants (trade shocks) deeply influence cultural political outcomes.
 
             \input{tables/Q7/EEI_Take_Home_VIIf}
 
