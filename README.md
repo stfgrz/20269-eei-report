@@ -36,6 +36,107 @@ This repository contains the complete analysis for the Economics of European Int
 └── README.md           # This file
 ```
 
+## Data Flow
+
+The chart below shows which input datasets feed each problem, what intermediate files are produced, and what final outputs (tables and figures) are generated.
+
+```mermaid
+flowchart TD
+    %% ── Raw inputs ──────────────────────────────────────────────────────────
+    subgraph RAW["Raw Input Data"]
+        D1[("EEI_TH_2025.dta\nFirm-level balance sheets\n(France · Spain · Italy)")]
+        D2[("Employment_Shares\n_Take_Home.dta\nNUTS-2 employment by sector")]
+        D3[("Imports_China\n_Take_Home.dta\nEU imports from China")]
+        D4[("Imports_US_China\n_Take_Home.dta\nUS imports from China (IV)")]
+        D5[("EEI_TH_P6_2025.dta\nRegional TFP & wages")]
+        D6[("ESS8e02_3.dta\nEuropean Social Survey Rd 8")]
+        D7[("MPDataset_MPDS2024a\nManifesto Project 2024")]
+        D8[("NUTS_RG_20M_2013\nNUTS-2 Shapefiles")]
+    end
+
+    %% ── Part 1 ───────────────────────────────────────────────────────────────
+    subgraph PART1["Part 1 · Production Function Estimation"]
+        P1["Q1 · Descriptive Statistics\nFR30 region — 2007 vs 2017\nsectors 13 & 29"]
+        P2["Q2 · TFP Estimation\nOLS · WRDG · Levinsohn-Petrin"]
+        P4["Q4 · TFP Distribution Analysis\nclean extremes · kdensity plots\nPareto fits · skewness"]
+        IQ4[("intermediate/\ninput_Q4.dta")]
+        ICS[("intermediate/\npart_I_cleaned_sample.dta")]
+    end
+
+    %% ── Part 2a: China Shock ─────────────────────────────────────────────────
+    subgraph PART2A["Part 2a · China Shock Construction (Q5)"]
+        WPR[("intermediate/\nweights_pre.dta\npre-sample emp. shares")]
+        CS_EU[("intermediate/\nChinaShock_by_region_year.dta")]
+        CS_US[("intermediate/\nChinaShock_by_region_year_us.dta")]
+        MERGED[("intermediate/\nsum_china_shock_merged.dta\ncross-sectional shock + IV")]
+        SHP[("intermediate/\nnuts2_db · nuts2_coords.dta\nconverted shapefiles")]
+    end
+
+    %% ── Part 2b: Regional Regressions ───────────────────────────────────────
+    subgraph PART2B["Part 2b · Regional Outcome Regressions (Q6)"]
+        IQ6[("intermediate/\nQ6.dta")]
+    end
+
+    %% ── Part 2c: Political Economy ───────────────────────────────────────────
+    subgraph PART2C["Part 2c · Political Economy (Q7)"]
+        ESS_IT[("intermediate/\nESS8_Italy_cleaned.dta")]
+        IQ7AB[("intermediate/\nQ7ab.dta")]
+        MP_CL[("intermediate/\nMP_cleaned.dta\nItaly 2013 parties")]
+        IQ7EF[("intermediate/\nQ7ef.dta\nESS + party scores")]
+    end
+
+    %% ── Outputs ──────────────────────────────────────────────────────────────
+    subgraph OUT["Outputs"]
+        direction LR
+        OT1["tables/\ntable1.tex · table2.tex\nDescriptive stats (Q1)"]
+        OT2["figures/\nTFP density plots ×12\nQ4a–Q4c (WRDG & LP)"]
+        OT3["tables/\nPareto_France.tex\nPareto_Spain.tex (Q4e)"]
+        OT4["figures/\nmap_sum_china_shock.pdf\nmap_manuf_share.pdf (Q5)"]
+        OT5["tables/\nTable1_DescStats.tex\nChina Shock summary (Q5)"]
+        OT6["tables/\nEEI_Take_Home_VI_bb.tex\nEEI_Take_Home_VI_cc3.tex\nTFP & Wage regressions (Q6)"]
+        OT7["tables/\nEEI_Take_Home_VIIc.tex\nEEI_Take_Home_VIIf.tex\nAttitude & Minority score (Q7)"]
+    end
+
+    %% ── Edges: Part 1 ────────────────────────────────────────────────────────
+    D1 --> P1
+    P1 --> OT1
+    D1 --> P2
+    P2 --> IQ4
+    IQ4 --> P4
+    P4 --> ICS
+    ICS -.used within.-> P4
+    P4 --> OT2
+    P4 --> OT3
+
+    %% ── Edges: Part 2a ───────────────────────────────────────────────────────
+    D2 --> WPR
+    WPR --> CS_EU
+    D3 --> CS_EU
+    WPR --> CS_US
+    D4 --> CS_US
+    CS_EU --> MERGED
+    CS_US --> MERGED
+    D8 --> SHP
+    SHP --> OT4
+    MERGED --> OT4
+    D2 --> OT4
+    MERGED --> OT5
+
+    %% ── Edges: Part 2b ───────────────────────────────────────────────────────
+    D5 --> IQ6
+    MERGED --> IQ6
+    IQ6 --> OT6
+
+    %% ── Edges: Part 2c ───────────────────────────────────────────────────────
+    D6 --> ESS_IT
+    ESS_IT --> IQ7AB
+    MERGED --> IQ7AB
+    IQ7AB --> IQ7EF
+    D7 --> MP_CL
+    MP_CL --> IQ7EF
+    IQ7EF --> OT7
+```
+
 ## Project Contents
 
 ### Part 1: Production Function Estimation (Problems 1-4)
